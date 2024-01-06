@@ -83,7 +83,7 @@ public:
         PA_NUM_CHANNELS = wav.wav_file.numChannels;
 
         ws = std::make_shared<wave_source>(&wav, wav.wav_file.sampleRate, upper_limit);
-        m = std::make_shared<meter>(wav.wav_file.sampleRate, upper_limit);
+        m = std::make_shared<meter>(wav.wav_file.sampleRate, max_value);
         ws->connect_to(m, 1, 1);
         m->connect_to(pa_sink, 1, 1);
     }

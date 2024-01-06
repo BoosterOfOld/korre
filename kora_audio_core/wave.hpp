@@ -178,25 +178,23 @@ public:
                     auto b = wav_file.data[i + 1];
                     auto c = wav_file.data[i + 2];
 
-                    li |= wav_file.data[i + 0];
+                    li |= wav_file.data[i + 2];
                     li <<= 8;
                     li |= wav_file.data[i + 1];
                     li <<= 8;
-                    li |= wav_file.data[i + 2];
+                    li |= wav_file.data[i + 0];
                     //li <<= 8; // This is to conjure the sign bit in the 32 bit int
                     //li >>= 8; // Arithmetic right shift will keep the sign bit
                     if (li & 0x800000) li |= ~0xffffff;
-                    //if (li >= ((int32_t)1) << 23) li -= 16777216;
 
-                    ri |= wav_file.data[i + 3];
+                    ri |= wav_file.data[i + 5];
                     ri <<= 8;
                     ri |= wav_file.data[i + 4];
                     ri <<= 8;
-                    ri |= wav_file.data[i + 5];
+                    ri |= wav_file.data[i + 3];
                     //ri <<= 8;
                     //ri >>= 8;
                     if (ri & 0x800000) ri |= ~0xffffff;
-                    //if (ri >= ((int32_t)1) << 23) ri -= 16777216;
 
                     l->emplace_back((double) li);
                     r->emplace_back((double) ri);
@@ -222,6 +220,7 @@ public:
             {
                 for (int i = 0; i < wav_file.subchunk2Size; i += 3)
                 {
+                    /*
                     int32_t li = 0;
 
                     li |= wav_file.data[i + 0];
@@ -229,8 +228,21 @@ public:
                     li |= wav_file.data[i + 1];
                     li <<= 8;
                     li |= wav_file.data[i + 2];
-                    li <<= 8; // This is to conjure the sign bit in the 32 bit int
-                    li >>= 8; // Arithmetic right shift will keep the sign bit
+                    //li <<= 8; // This is to conjure the sign bit in the 32 bit int
+                    //li >>= 8; // Arithmetic right shift will keep the sign bit
+                    if (li & 0x800000) li |= ~0xffffff;
+
+                    l->emplace_back((double) li);
+                    lr->emplace_back((double) li);*/
+
+                    int32_t li = 0;
+
+                    li |= wav_file.data[i + 2];
+                    li <<= 8;
+                    li |= wav_file.data[i + 1];
+                    li <<= 8;
+                    li |= wav_file.data[i + 0];
+                    if (li & 0x800000) li |= ~0xffffff;
 
                     l->emplace_back((double) li);
                     lr->emplace_back((double) li);

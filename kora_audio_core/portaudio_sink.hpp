@@ -94,13 +94,13 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
             unsigned char rb2 = (r32 >> 8);
             unsigned char rb3 = r32;
 
-            *out_byte++ = lb1;
-            *out_byte++ = lb2;
             *out_byte++ = lb3;
+            *out_byte++ = lb2;
+            *out_byte++ = lb1;
 
-            *out_byte++ = rb1;
-            *out_byte++ = rb2;
             *out_byte++ = rb3;
+            *out_byte++ = rb2;
+            *out_byte++ = rb1;
         }
 
 
