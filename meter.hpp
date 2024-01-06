@@ -6,117 +6,7 @@
 
 #include "pffft/pfft.h"
 
-
-//const size_t order = 9;
-//const size_t nn = 512 * 2;
-//const size_t order = 8;
-//const size_t nn = 256 * 2;
-
-//const size_t order = 6;
-//const size_t nn = 64 * 2;
-/*
-const size_t order = 9;
-const size_t nn = 512 * 2;
-
-
-class meter : public sampler
-{
-public:
-    double l;
-    double r;
-
-    double ln;
-    double rn;
-
-    size_t pos;
-    size_t pos_max;
-
-    PFFFT *p;
-
-    float wind[nn];
-    float wind_avg[nn];
-    float wind_new[nn];
-
-    float ceiling=1;
-
-    explicit meter(uint32_t sample_rate, uint32_t max_quant) : sampler(sample_rate, max_quant)
-    {
-        p = new PFFFT(order);
-
-        std::fill(std::begin(wind_avg),std::begin(wind_avg)+nn,0);
-    }
-
-    virtual std::tuple<double, double> sample(size_t t) override
-    {
-        auto sample = s_in1()->sample(t);
-
-        l = std::get<0>(sample);
-        r = std::get<1>(sample);
-
-        wind[t%nn] = (float)l;
-
-        if (t!=0 && t % (nn) == 0)
-        {
-            memcpy(wind_new, wind, sizeof(wind_avg));
-
-            for (int i = 0; i < nn; ++i)
-            {
-                wind_new[i] /= (float)max_quant;
-            }
-
-            p->performFrequencyOnlyForwardTransform(wind_new, true);
-
-            ceiling = 0;
-            for (int i = 0; i < nn; ++i)
-            {
-                wind_avg[i] = wind_new[i];
-                if (wind_avg[i] > ceiling)
-                {
-                    ceiling = wind_avg[i];
-                }
-
-            }
-        }
-
-        if (t % 100 == 0)
-        {
-            ln = abs(l) / (float) max_quant;
-            rn = abs(r) / (float) max_quant;
-
-            pos = t;
-            pos_max = s_in1()->sample_size();
-        }
-
-        return { l, r };
-    }
-
-    virtual size_t sample_size() override
-    {
-        return s_in1()->sample_size();
-    }
-
-    virtual void pulse() override
-    {
-        this->propagate();
-    }
-};
-*/
-
-
-//const size_t order = 9;
-//const size_t nn = 512 * 2;
-//const size_t order = 8;
-//const size_t nn = 256 * 2;
-
-//const size_t order = 6;
-//const size_t nn = 64 * 2;
-
-
-
 const double samplage = 0.011;
-const double ss = 0.0001; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! sample the input data for DFT regardless of sampling rate
 
 class meter : public sampler
 {
@@ -144,20 +34,17 @@ public:
     float *wind;  // nn
     float **wind_f; // roll nn
     float *wind_avg; // nn
-    size_t wind_cnt = 0;
     size_t current_roll;
 
     volatile float ceiling=1;
 
     explicit meter(uint32_t sample_rate, uint32_t max_quant) : sampler(sample_rate, max_quant)
     {
-        order = 9; // 9
+        order = 9; // 9 -- PUT THIS TO SETTINGS !!!!!!!
         n = pow(2, order);
         nn = n * 2;
 
-        last_bin_freq = 20000;
-        bin_spacing = (double)sample_rate / (double)n;
-        bin_range = (size_t)last_bin_freq / (size_t)bin_spacing;
+        update_range(20000);
 
         wind = new float[nn];
         wind_f = new float*[roll];
@@ -186,6 +73,13 @@ public:
         }
 
         current_roll = 0;
+    }
+
+    void update_range(double freq)
+    {
+        last_bin_freq = freq;
+        bin_spacing = (double)sample_rate / (double)n;
+        bin_range = (size_t)last_bin_freq / (size_t)bin_spacing;
     }
 
     virtual std::tuple<double, double> sample(size_t t) override
