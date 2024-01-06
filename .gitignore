@@ -1,5 +1,5 @@
-kora_audio_core/
-kora_audio_core
+cmake-build-debug/
+cmake-build-debug
 
 # Prerequisites
 *.d
