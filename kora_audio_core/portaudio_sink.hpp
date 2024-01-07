@@ -40,6 +40,8 @@ static uint32_t PA_SAMPLE_RATE;
 static uint32_t PA_BIT_DEPTH;
 static uint32_t PA_NUM_CHANNELS;
 
+static size_t PA_T;
+
 static int paCallback( const void *inputBuffer, void *outputBuffer,
                            unsigned long framesPerBuffer,
                            const PaStreamCallbackTimeInfo* timeInfo,
@@ -59,18 +61,8 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
 
     for(i=0; i<framesPerBuffer; ++i)
     {
-        pair = datax->sampler->sample(datax->t);
-
-        /*
-        if (graph_sample_index >= PA_SAMPLE_LENGTH)
-        {
-            graph_sample_index = 0;
-        }
-
-        output[graph_sample_index] = std::get<0>(pair);
-        outputr[graph_sample_index] = std::get<1>(pair);
-
-        ++graph_sample_index;*/
+        //pair = datax->sampler->sample(datax->t);
+        pair = datax->sampler->sample(PA_T);
 
         double left_sample = std::get<0>(pair);
         double right_sample = std::get<1>(pair);
@@ -103,10 +95,10 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
             *out_byte++ = rb1;
         }
 
-
-
-        ++datax->t;
-        datax->t %= PA_SAMPLE_LENGTH;
+        //++datax->t;
+        //datax->t %= PA_SAMPLE_LENGTH;
+        ++PA_T;
+        PA_T %= PA_SAMPLE_LENGTH;
     }
     return 0;
 }
@@ -163,7 +155,7 @@ private:
 public:
     portaudio_sink()
     {
-        ;
+        PA_T = 0;
     }
 
     virtual void pulse() override

@@ -145,7 +145,9 @@ add_executable(kora
         pffft/pffft.h
         pffft/pffft.c
         pffft/pfft.h
-        audio_select.hpp)
+        audio_select.hpp
+        hanning.h
+        tukey.h)
 
 include_directories(./imtui)
 include_directories(./include)

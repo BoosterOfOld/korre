@@ -99,7 +99,7 @@ public:
     }
 
     int width = 80;
-    int height = 40;
+    int height = 35;
     int spacer = 2;
 
     void on_frame()
@@ -152,7 +152,7 @@ public:
 
         ImGui::Text("");
 
-        if (ImGui::Button(pa_sink->is_open() ? " STOP " : " PLAY "))
+        if (ImGui::Button(pa_sink->is_open() ? " PAUSE " : " >PLAY "))
         {
             running = !running;
 
@@ -168,12 +168,34 @@ public:
             }
         }
 
+        ImGui::SameLine();
+
+        if (ImGui::Button(" STOP "))
+        {
+            running = !running;
+
+            if (pa_sink->is_open() && !running)
+            {
+                running = false;
+                pa_sink->plug();
+            }
+            PA_T = 0;
+            m->pos = 0;
+        }
+
         ImGui::Text("");
 
-        //ImGui::SliderFloat("slider float", &f1, 0.0f, 1.0f, "ratio = %.3f");
+        static int t;
+        t = PA_T;
+        ImGui::SetNextItemWidth(width);
+        ImGui::SliderInt("", &t, 0.0f, PA_SAMPLE_LENGTH, "TRACK SLIDER");
+        if (t != PA_T)
+        {
+            PA_T = t;
+        }
 
         char buf[32];
-        sprintf(buf, "%.0f", (float)m->pos);
+        sprintf(buf, "%.0f s", (float)m->pos/(float)PA_SAMPLE_RATE);
         ImGui::ProgressBar((float)m->pos/(float)m->pos_max, ImVec2(width, 1), buf);
 
         ImGui::Text("");
@@ -207,7 +229,9 @@ public:
         ImGui::RadioButton("20 kHz", &f_range_type, 0); ImGui::SameLine();
         ImGui::RadioButton("16 kHz", &f_range_type, 1); ImGui::SameLine();
         ImGui::RadioButton("12 kHz", &f_range_type, 2); ImGui::SameLine();
-        ImGui::RadioButton("8 kHz", &f_range_type, 3);
+        ImGui::RadioButton("8 kHz", &f_range_type, 3); ImGui::SameLine();
+        ImGui::Text("| Window:"); ImGui::SameLine();
+        ImGui::Checkbox("Hanning", &(m->apply_hann));
 
         switch (f_range_type)
         {
