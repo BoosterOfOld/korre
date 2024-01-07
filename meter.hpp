@@ -41,6 +41,8 @@ public:
 
     explicit meter(uint32_t sample_rate, uint32_t max_quant) : sampler(sample_rate, max_quant)
     {
+        name = "Meter";
+
         order = 9; // 9 -- PUT THIS TO SETTINGS !!!!!!!
         n = pow(2, order);
         nn = n * 2;
@@ -92,7 +94,7 @@ public:
         r = std::get<1>(sample);
 
         // Circular buffer.
-        wind[t%nn] = (float)l;
+        wind[t%nn] = ((float)l + (float)r) / 2.f;
 
         // Apply Hanning window.
         if (apply_hann)

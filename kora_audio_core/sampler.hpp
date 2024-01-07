@@ -6,6 +6,8 @@
 class kora_chain_link : public std::enable_shared_from_this<kora_chain_link>
 {
 protected:
+    std::string name;
+
     std::shared_ptr<kora_chain_link> in1 = nullptr;
     std::shared_ptr<kora_chain_link> in2 = nullptr;
 

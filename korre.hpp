@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <cstring>
+#include <iostream>
 
 #include "imtui/imtui.h"
 #include "imtui/imtui-impl-ncurses.h"
@@ -13,7 +15,7 @@ class korre
 private:
     bool exit = false;
     ImTui::TScreen* screen;
-    std::string title_text = "Korre";
+    std::string title_text = "Korre ";
 
     std::unique_ptr<player> pl;
     std::unique_ptr<audio_select> as;
@@ -21,8 +23,36 @@ private:
     bool audio_selected = false;
     std::string selected_audio;
 
+    int num_devices = 0;
+    int selected_device = 0;
+    std::vector<const PaDeviceInfo *> devices;
+    std::vector<std::string> device_names;
+    std::vector<std::string> device_srs;
+
+    void refresh_devices()
+    {
+        devices.clear();
+        device_names.clear();
+        device_srs.clear();
+        auto err = Pa_Initialize();
+        if(err == paNoError)
+        {
+            num_devices = Pa_GetDeviceCount();
+            for (auto i = 0; i < num_devices; ++i)
+            {
+                auto d = Pa_GetDeviceInfo(i);
+                devices.emplace_back(d);
+                device_names.emplace_back(d->name);
+                device_srs.emplace_back(std::to_string((int32_t)d->defaultSampleRate));
+            }
+        }
+        Pa_Terminate();
+    }
+
     void init()
     {
+        refresh_devices();
+
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
 
@@ -34,6 +64,12 @@ private:
     {
         ImTui_ImplText_Shutdown();
         ImTui_ImplNcurses_Shutdown();
+    }
+
+    void unload_audio()
+    {
+        audio_selected = false;
+        pl->stop();
     }
 
     void load_audio(std::string path)
@@ -83,22 +119,49 @@ private:
 
             ImGui::SameLine();
 
-            if (ImGui::BeginMenu("Menu"))
+            if (ImGui::BeginMenu("File"))
             {
+                if(ImGui::MenuItem("Exit", nullptr, nullptr))
+                {
+                    exit = true;
+                }
                 ImGui::EndMenu();
             }
-            if (ImGui::BeginMenu("Examples"))
+            if (ImGui::BeginMenu("Output Device"))
             {
-                ImGui::MenuItem("Console", nullptr, nullptr);
-                ImGui::MenuItem("Kora", nullptr, nullptr);
+                if (ImGui::MenuItem("Refresh Device List", nullptr, nullptr))
+                {
+                    refresh_devices();
+                }
 
-                ImGui::EndMenu();
-            }
-            //if (ImGui::MenuItem("MenuItem")) {} // You can also use MenuItem() inside a menu bar!
-            if (ImGui::BeginMenu("Tools"))
-            {
-                //ImGui::MenuItem("Metrics/Debugger", NULL, &show_tool_metrics, has_debug_tools);
-                //ImGui::MenuItem("Style Editor", NULL, &show_tool_style_editor);
+                if (ImGui::BeginMenu("Devices           >"))
+                {
+                    if (ImGui::MenuItem((std::string("Use Default Device")+( (0 == selected_device) ? std::string(" (selected)") : std::string(""))).c_str()))
+                    {
+                        unload_audio();
+                        selected_device = 0;
+                        PA_SELECTED_DEVICE = -1;
+                        PA_USE_DEFAULT_DEVICE = true;
+                    }
+
+                    int cnt = 1;
+                    for (auto d: device_names)
+                    {
+                        if (ImGui::MenuItem((
+                                                    std::string("Device ") + std::to_string(cnt - 1) + ": " + d + " at " + device_srs[cnt-1] + "Hz" +
+                                                            ( ((cnt) == selected_device) ? std::string(" (selected)") : std::string(""))
+                                                    ).c_str()))
+                        {
+                            unload_audio();
+                            selected_device = cnt;
+                            PA_SELECTED_DEVICE = selected_device - 1;
+                            PA_USE_DEFAULT_DEVICE = false;
+                        }
+                        ++cnt;
+                    }
+                    ImGui::EndMenu();
+                }
+
                 ImGui::EndMenu();
             }
 

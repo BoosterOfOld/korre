@@ -99,7 +99,7 @@ public:
     }
 
     int width = 80;
-    int height = 35;
+    int height = 30;
     int spacer = 2;
 
     void on_frame()
@@ -107,51 +107,81 @@ public:
         ImGui::SetNextWindowPos(ImVec2((float)3, (float)3), ImGuiCond_Once);
         ImGui::SetNextWindowSize(ImVec2((float)(0 + width + 0 + 1), (float)height + 2), ImGuiCond_Once);
 
-        ImGui::Begin("Wave File");
+        ImGui::Begin("Audio Player");
 
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar;
 
-        /*
-        ImGui::BeginChild("Col1", ImVec2((float)left_panel_width, (float)height), false, window_flags);
-
-        ImGui::PlotHistogram("", rms_left, 1, 0, nullptr, 0.1f, 1.f, ImVec2(3.f, height));
-        ImGui::SameLine();
-        ImGui::PlotHistogram("", rms_right, 1, 0, nullptr, 0.1f, 1.f, ImVec2(3.f, height));
-
-        ImGui::EndChild();
-        ImGui::SameLine(0, 1);
-*/
-        //ImGui::BeginChild("Col2", ImVec2((float)width, (float)height), false, window_flags);
-
-        //ImGui::TextWrapped("This Kora application emulates the DOHM noise machine.");
-
         ImGui::Text("");
 
-        ImGui::BeginChild("Col1", ImVec2((float)width/2.f, (float)8), false, window_flags);
+        ImGui::BeginChild("Col1", ImVec2(28.f, (float)8), false, window_flags);
 
-        ImGui::Text(("File Format: " + std::string((const char *)wav.wav_file.format, 4)).c_str());
-        ImGui::Text(("Audio Format: " + std::string((wav.wav_file.audioFormat == 1 ? "PCM" : "Non-PCM")) ).c_str());
-        ImGui::Text(("Sampling Rate: " + std::to_string(wav.wav_file.sampleRate)).c_str());
-        ImGui::Text(("Bit Depth: " + std::to_string(wav.wav_file.bitsPerSample)).c_str());
-        ImGui::Text(("Channels: " + std::to_string(wav.wav_file.numChannels)).c_str());
-        ImGui::Text(("Data Size: " + std::to_string((float)wav.wav_file.subchunk2Size / 1048576.f) + " MB").c_str());
-        int num_samples = ((float)wav.wav_file.subchunk2Size / (float)wav.wav_file.numChannels) / ((float)wav.wav_file.bitsPerSample / 8.f);
-        ImGui::Text(("Number of Samples: " + std::to_string( num_samples )).c_str());
-        ImGui::Text(("Duration: " + std::to_string( num_samples / (float)wav.wav_file.sampleRate ) + " s").c_str());
+        ImGui::Text(R"(.------------------------.)");
+        ImGui::Text(R"(|\\////////       90 min |)");
+        ImGui::Text(R"(| \/  __  ______  __     |)");
+        ImGui::Text(R"(|    /  \|\.....|/  \    |)");
+        ImGui::Text(R"(|    \__/|/_____|\__/    |)");
+        ImGui::Text(R"(| A   ______________     |)");
+        ImGui::Text(R"(|    /              \    |)");
+        ImGui::Text(R"(|___/_._o________o_._\___|)");
 
         ImGui::EndChild();
         ImGui::SameLine();
         ImGui::BeginChild("Col2", ImVec2((float)width/2.f, (float)8), false, window_flags);
 
+        ImGui::Text("");
+        //ImGui::Text(("File Format: " + std::string((const char *)wav.wav_file.format, 4)).c_str());
+
+        ImGui::Text("Audio Format:"); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+        ImGui::Text((std::string((const char *)wav.wav_file.format, 4) + "/" + std::string((wav.wav_file.audioFormat == 1 ? "PCM" : "Non-PCM"))).c_str());
+        ImGui::PopStyleColor();
+
+        ImGui::Text("Sampling Rate:"); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+        ImGui::Text("%s", std::to_string(wav.wav_file.sampleRate).c_str());
+        ImGui::PopStyleColor();
+
+        ImGui::Text("Bit Depth:"); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+        ImGui::Text("%s", std::to_string(wav.wav_file.bitsPerSample).c_str());
+        ImGui::PopStyleColor();
+
+        ImGui::Text("Channels:"); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+        ImGui::Text("%s", std::to_string(wav.wav_file.numChannels).c_str());
+        ImGui::PopStyleColor();
+
+        ImGui::Text("Data Size:"); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+        ImGui::Text("%s", (std::to_string((float)wav.wav_file.subchunk2Size / 1048576.f) + " MB").c_str());
+        ImGui::PopStyleColor();
+
+        int num_samples = ((float)wav.wav_file.subchunk2Size / (float)wav.wav_file.numChannels) / ((float)wav.wav_file.bitsPerSample / 8.f);
+
+        ImGui::Text("Number of Samples:"); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+        ImGui::Text("%s", std::to_string( num_samples ).c_str());
+        ImGui::PopStyleColor();
+
+        ImGui::Text("Duration:"); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+        ImGui::Text("%s", (std::to_string( num_samples / (float)wav.wav_file.sampleRate ) + " s").c_str());
+        ImGui::PopStyleColor();
+
+        /*
         ImGui::Text(("Lowest Sample Value: " + std::to_string(min_value)).c_str());
         ImGui::Text(("Minimal Sample Value: " + std::to_string(lower_limit)).c_str());
         ImGui::Text(("Highest Sample Value: " + std::to_string(max_value)).c_str());
-        ImGui::Text(("Maximal Sample Value: " + std::to_string(upper_limit)).c_str());
+        ImGui::Text(("Maximal Sample Value: " + std::to_string(upper_limit)).c_str());*/
 
         ImGui::EndChild();
 
         ImGui::Text("");
 
+        double i = pa_sink->is_open() ? 55.f / 360.f : 2.f / 7.f;
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(i, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(i, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(i, 0.8f, 0.8f));
         if (ImGui::Button(pa_sink->is_open() ? " PAUSE " : " >PLAY "))
         {
             running = !running;
@@ -167,9 +197,13 @@ public:
                 running = true;
             }
         }
+        ImGui::PopStyleColor(3);
 
         ImGui::SameLine();
 
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.8f, 0.8f));
         if (ImGui::Button(" STOP "))
         {
             running = !running;
@@ -182,27 +216,51 @@ public:
             PA_T = 0;
             m->pos = 0;
         }
+        ImGui::PopStyleColor(3);
 
-        ImGui::Text("");
+        ImGui::SameLine();
+
 
         static int t;
         t = PA_T;
+        char buf[32];
+        sprintf(buf, "%.0f s", (float)m->pos/(float)PA_SAMPLE_RATE);
         ImGui::SetNextItemWidth(width);
-        ImGui::SliderInt("", &t, 0.0f, PA_SAMPLE_LENGTH, "TRACK SLIDER");
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(247.f / 360.f, 1.0f, 0.1));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, (ImVec4)ImColor::HSV(247.f / 360.f, 1.0f, 0.4));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgActive, (ImVec4)ImColor::HSV(247.f / 360.f, 1.0f, 0.4));
+        //ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_SliderGrab, (ImVec4)ImColor::HSV(54.f / 360.f, 1.0f, 0.9f));
+        //ImGui::Text("SEEK:"); ImGui::SameLine();
+        ImGui::SetNextItemWidth(width - 15);
+        ImGui::SliderInt("", &t, 0.0f, PA_SAMPLE_LENGTH, buf);
+        ImGui::PopStyleColor(4);
         if (t != PA_T)
         {
             PA_T = t;
         }
 
-        char buf[32];
-        sprintf(buf, "%.0f s", (float)m->pos/(float)PA_SAMPLE_RATE);
-        ImGui::ProgressBar((float)m->pos/(float)m->pos_max, ImVec2(width, 1), buf);
-
         ImGui::Text("");
 
+        /*
+        char buf[32];
+        sprintf(buf, "%.0f s", (float)m->pos/(float)PA_SAMPLE_RATE);
+        //ImGui::Text(" "); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0, 0, 0));
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.6f));
+        ImGui::ProgressBar((float)m->pos/(float)m->pos_max, ImVec2(width, 1), buf);
+        ImGui::PopStyleColor(3);
+         */
 
-        // nn/4
+        //ImGui::Text("");
+
+
+        i = 3;
+        ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (ImVec4)ImColor::HSV(i / 7.0f, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0, 0, 0));
         ImGui::PlotLines("", m->wind_avg, m->bin_range, 0, "FREQUENCY SPECTRUM", 0.f, m->ceiling, ImVec2(width, 15));
+        ImGui::PopStyleColor(2);
 
         ImGui::Text(" ");
         //ImGui::Text(" ");

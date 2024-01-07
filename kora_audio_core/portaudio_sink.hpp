@@ -40,6 +40,9 @@ static uint32_t PA_SAMPLE_RATE;
 static uint32_t PA_BIT_DEPTH;
 static uint32_t PA_NUM_CHANNELS;
 
+static int PA_SELECTED_DEVICE = 1;
+static bool PA_USE_DEFAULT_DEVICE = true;
+
 static size_t PA_T;
 
 static int paCallback( const void *inputBuffer, void *outputBuffer,
@@ -124,16 +127,43 @@ private:
         err = Pa_Initialize();
         if( err != paNoError ) terminate();
 
-        /* Open an audio I/O stream. */
-        err = Pa_OpenDefaultStream(&stream,
-                                   0,
-                                   2,
-                                   PA_BIT_DEPTH == 8 ? paInt8 : PA_BIT_DEPTH == 16 ? paInt16 : PA_BIT_DEPTH == 24 ? paInt24 : PA_BIT_DEPTH == 32 ? paInt32 : paInt16,
-                                   PA_SAMPLE_RATE,
-                                   256,        /* frames per buffer */
-                                    paCallback,
-                                   &datax );
-        if( err != paNoError ) terminate();
+        if (PA_USE_DEFAULT_DEVICE)
+        {
+            // Open an audio I/O stream.
+            err = Pa_OpenDefaultStream(&stream,
+                                       0,
+                                       2,
+                                       PA_BIT_DEPTH == 8 ? paInt8 : PA_BIT_DEPTH == 16 ? paInt16 : PA_BIT_DEPTH == 24 ? paInt24 : PA_BIT_DEPTH == 32 ? paInt32 : paInt16,
+                                       PA_SAMPLE_RATE,
+                                       256,        // frames per buffer
+                                        paCallback,
+                                       &datax );
+            if( err != paNoError ) terminate();
+        }
+        else
+        {
+            PaStreamParameters outputParameters;
+            bzero(&outputParameters, sizeof(outputParameters)); //not necessary if you are filling in all the fields
+            outputParameters.channelCount = 2;
+            outputParameters.device = PA_SELECTED_DEVICE;
+            outputParameters.hostApiSpecificStreamInfo = NULL;
+            outputParameters.sampleFormat =
+                    PA_BIT_DEPTH == 8 ? paInt8 : PA_BIT_DEPTH == 16 ? paInt16 : PA_BIT_DEPTH == 24 ? paInt24 :
+                                                                                PA_BIT_DEPTH == 32 ? paInt32 : paInt16;
+            outputParameters.suggestedLatency = Pa_GetDeviceInfo(PA_SELECTED_DEVICE)->defaultLowOutputLatency;
+            outputParameters.hostApiSpecificStreamInfo = NULL; //See you specific host's API docs for info on using this field
+
+            err = Pa_OpenStream(
+                    &stream,
+                    NULL,
+                    &outputParameters,
+                    PA_SAMPLE_RATE,
+                    256,
+                    paNoFlag, //flags that can be used to define dither, clip settings and more
+                    paCallback, //your callback function
+                    &datax);
+            if (err != paNoError) terminate();
+        }
 
         err = Pa_StartStream( stream );
         if( err != paNoError ) terminate();
@@ -155,6 +185,7 @@ private:
 public:
     portaudio_sink()
     {
+        name = "PA Sink";
         PA_T = 0;
     }
 
