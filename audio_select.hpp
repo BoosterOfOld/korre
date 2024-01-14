@@ -46,7 +46,7 @@ public:
     }
 
     int w = 40;
-    int h = 19;
+    int h = 28;
 
     bool is_loading = false;
 
@@ -89,7 +89,7 @@ public:
         ImGui::Text(" ");
         ImGui::SameLine();
 
-        if (ImGui::BeginListBox("Audio Select", ImVec2(w - 3.f, 10.f)))
+        if (ImGui::BeginListBox("Audio Select", ImVec2(w - 3.f, 19.f)))
         {
             for (int n = 0; n < itemies.size(); ++n)
             {

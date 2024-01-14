@@ -26,6 +26,7 @@ private:
 
     bool stop = false;
 
+
     static void *worker_run(dsp_convolver *dc)
     {
         dc->in_progress = true;
@@ -51,6 +52,60 @@ private:
         dc->yield();
     }
 
+    /*
+    static void *worker_run(dsp_convolver *dc)
+    {
+        dc->in_progress = true;
+        dc->right_channel = false;
+
+        auto sigl = dc->wsi->w->l;
+        auto irl = dc->ws->w->l;
+
+        auto sigr = dc->wsi->w->r;
+        auto irr = dc->ws->w->r;
+
+        auto xl = dc->convo_sum(sigl, irl);
+        dc->right_channel = true;
+        auto xr = dc->convo_sum(sigr, irr);
+
+        dc->convolved_l = xl;
+        dc->convolved_r = xr;
+        dc->in_progress = false;
+
+        dc->yield();
+    }*/
+
+    std::shared_ptr<std::vector<double>> convo_sum(
+            std::vector<double> *signal,
+            std::vector<double> *kernel)
+    {
+        auto signal_size = signal->size();
+        auto kernel_size = kernel->size();
+        auto cnt_operations = signal_size * kernel_size;
+
+        int jmn = 0;
+        int jmx = 0;
+
+        double p = 0;
+
+        auto ret = std::make_shared<std::vector<double>>(signal_size);
+
+        size_t ops = 0;
+        for(auto i = 0; i < signal_size; ++i)
+        {
+            jmn = (i >= signal_size - 1) ? i - (signal_size - 1) : 0;
+            jmx = (i < kernel_size - 1) ? i : kernel_size - 1;
+            for (auto j(jmn); j <= jmx; ++j)
+            {
+                ++ops;
+                p += (kernel->at(j) * signal->at(i - j));
+            }
+            ret->emplace_back(p);
+            p = 0;
+        }
+
+        return ret;
+    }
 
 public:
     std::shared_ptr<wave_source> ws = nullptr;
@@ -220,36 +275,5 @@ public:
     }
 };
 
-/*
-std::unique_ptr<std::vector<double>> convo_sum(
-        std::vector<double> *signal,
-        std::vector<double> *kernel)
-{
-    auto signal_size = signal->size();
-    auto kernel_size = kernel->size();
-    auto cnt_operations = signal_size * kernel_size;
 
-    int jmn = 0;
-    int jmx = 0;
 
-    double p = 0;
-
-    auto ret = std::make_unique<std::vector<double>>(signal_size);
-
-    size_t ops = 0;
-    for(auto i = 0; i < signal_size; ++i)
-    {
-        jmn = (i >= signal_size - 1) ? i - (signal_size - 1) : 0;
-        jmx = (i < kernel_size - 1) ? i : kernel_size - 1;
-        for (auto j(jmn); j <= jmx; ++j)
-        {
-            ++ops;
-            p += (kernel->at(j) * signal->at(i - j));
-        }
-        ret->emplace_back(p);
-        p = 0;
-        this->progress = (double)ops / (double)cnt_operations;
-    }
-
-    return ret;
-}*/

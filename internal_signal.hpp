@@ -23,11 +23,24 @@ private:
             }
         }
 
-        double normal = pow(2,bit_depth) / max;
+        double normal = ((pow(2,bit_depth) - 1) / max) / 2;
+        //double normal = 10000.0 / max;
+
+        double mn = DBL_MAX;
+        double mx = DBL_MIN;
 
         for(auto i = 0; i < signal->size(); ++i)
         {
             (*signal)[i] *= normal;
+
+            if ((*signal)[i] > mx)
+            {
+                mx = (*signal)[i];
+            }
+            if ((*signal)[i] < mn)
+            {
+                mn = (*signal)[i];
+            }
         }
     }
 public:
