@@ -146,8 +146,10 @@ add_executable(kora
         pffft/pffft.c
         pffft/pfft.h
         audio_select.hpp
-        hanning.h
-        tukey.h)
+        tukey.h
+        dsp_convolver.hpp
+        dsp_convolver.hpp
+        internal_signal.hpp)
 
 include_directories(./imtui)
 include_directories(./include)
@@ -156,10 +158,12 @@ include_directories(kora_audio_core/stft)
 include_directories(/opt/homebrew/include)
 
 find_library(l_portaudio NAMES portaudio)
-find_library(l_portaudio NAMES ncurses)
+find_library(l_ncurses NAMES ncurses)
+find_library(l_armadillo NAMES armadillo)
 
 target_link_libraries(kora PUBLIC ${l_portaudio})
-target_link_libraries(kora PUBLIC ncurses)
+target_link_libraries(kora PUBLIC ${l_ncurses})
+target_link_libraries(kora PUBLIC ${l_armadillo})
 target_link_libraries(kora PUBLIC imtui)
 target_link_libraries(kora PUBLIC stft)
 

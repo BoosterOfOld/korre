@@ -105,6 +105,10 @@ public:
         // Calculates every 0.011s.
         if (t!=0 && t % (size_t)(fft_calc_time * sample_rate) == 0)
         {
+            if (ceiling > 4294967296.f)
+            {
+                ceiling = 0;
+            }
             // Ceiling before its update.
             auto pc = ceiling;
 

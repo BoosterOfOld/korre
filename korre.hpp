@@ -9,6 +9,7 @@
 
 #include "player.hpp"
 #include "audio_select.hpp"
+#include "dsp_convolver.hpp"
 
 class korre
 {
@@ -19,19 +20,21 @@ private:
 
     std::unique_ptr<player> pl;
     std::unique_ptr<audio_select> as;
+    std::unique_ptr<dsp_convolver> dc;
 
     bool audio_selected = false;
     std::string selected_audio;
 
+    bool ir_selected = false;
+    std::string selected_ir;
+
     int num_devices = 0;
     int selected_device = 0;
-    std::vector<const PaDeviceInfo *> devices;
     std::vector<std::string> device_names;
     std::vector<std::string> device_srs;
 
     void refresh_devices()
     {
-        devices.clear();
         device_names.clear();
         device_srs.clear();
         auto err = Pa_Initialize();
@@ -41,7 +44,6 @@ private:
             for (auto i = 0; i < num_devices; ++i)
             {
                 auto d = Pa_GetDeviceInfo(i);
-                devices.emplace_back(d);
                 device_names.emplace_back(d->name);
                 device_srs.emplace_back(std::to_string((int32_t)d->defaultSampleRate));
             }
@@ -82,6 +84,24 @@ private:
         audio_selected = true;
     }
 
+    void load_ir(std::string path)
+    {
+        ir_selected = false;
+        this->selected_ir = path;
+        dc = std::make_unique<dsp_convolver>(
+                [this]()->std::shared_ptr<wave_source>
+                {
+                    return pl->ws;
+                },
+                [this](const std::shared_ptr<internal_signal>& is)->void
+                {
+                    pl->ws->is = is;
+                }
+                );
+        dc->load(this->selected_ir.c_str());
+        ir_selected = true;
+    }
+
     void main_loop()
     {
         while(!exit)
@@ -102,11 +122,15 @@ private:
     {
         render_main_menu();
 
+        as->on_frame();
         if (audio_selected)
         {
             pl->on_frame();
         }
-        as->on_frame();
+        if (ir_selected)
+        {
+            dc->on_frame();
+        }
     }
 
     void render_main_menu()
@@ -171,9 +195,14 @@ private:
 public:
     korre()
     {
-        as = std::make_unique<audio_select>([this](auto && PH1)
+        as = std::make_unique<audio_select>(
+                    [this](auto && PH1)
                     {
                         load_audio(std::forward<decltype(PH1)>(PH1));
+                    },
+                    [this](auto && PH1)
+                    {
+                        load_ir(std::forward<decltype(PH1)>(PH1));
                     }
                 );
         pl = std::make_unique<player>();

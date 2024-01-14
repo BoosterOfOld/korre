@@ -77,7 +77,7 @@ public:
         auto i = t;
 
         int const jmn = (i >= m_sample_size - 1) ? i - (m_sample_size - 1) : 0;
-        int const jmx = (i <  kernel_size() - 1)   ? i                       : kernel_size() - 1;
+        int const jmx = (i <  kernel_size() - 1) ? i                       : kernel_size() - 1;
         for(auto j(jmn); j <= jmx; ++j)
         {
             l += (kernel_l()[j] * input_buffer_l[i - j]);

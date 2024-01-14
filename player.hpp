@@ -2,6 +2,7 @@
 
 #include <string>
 #include <cmath>
+#include <utility>
 
 #include "imtui/imtui.h"
 #include "imtui/imtui-impl-ncurses.h"
@@ -11,18 +12,19 @@
 #include "portaudio_sink.hpp"
 #include "wave_source.hpp"
 #include "meter.hpp"
+#include "internal_signal.hpp"
 
 class player
 {
 private:
     wave wav;
-    std::shared_ptr<wave_source> ws = nullptr;
+
     std::shared_ptr<meter> m = nullptr;
     std::shared_ptr<portaudio_sink> pa_sink = nullptr;
     bool running;
 
-    double min_value = 99999999999999;
-    double max_value = -99999999999999;
+    double min_value = DBL_MAX;
+    double max_value = DBL_MIN;
     int upper_limit = 0;
     int lower_limit = 0;
 
@@ -53,6 +55,8 @@ private:
     }
 
 public:
+    std::shared_ptr<wave_source> ws = nullptr;
+
     player()
     {
         pa_sink = std::make_shared<portaudio_sink>();
@@ -102,6 +106,11 @@ public:
     int height = 30;
     int spacer = 2;
 
+    void set_is(std::shared_ptr<internal_signal> isx) const
+    {
+        ws->is = std::move(isx);
+    }
+
     void on_frame()
     {
         ImGui::SetNextWindowPos(ImVec2((float)3, (float)3), ImGuiCond_Once);
@@ -126,7 +135,7 @@ public:
 
         ImGui::EndChild();
         ImGui::SameLine();
-        ImGui::BeginChild("Col2", ImVec2((float)width/2.f, (float)8), false, window_flags);
+        ImGui::BeginChild("Col2", ImVec2(((float)width/2.f)-10, (float)8), false, window_flags);
 
         ImGui::Text("");
         //ImGui::Text(("File Format: " + std::string((const char *)wav.wav_file.format, 4)).c_str());
@@ -173,6 +182,23 @@ public:
         ImGui::Text(("Minimal Sample Value: " + std::to_string(lower_limit)).c_str());
         ImGui::Text(("Highest Sample Value: " + std::to_string(max_value)).c_str());
         ImGui::Text(("Maximal Sample Value: " + std::to_string(upper_limit)).c_str());*/
+
+        if (ws->is != nullptr)
+        {
+            ImGui::EndChild();
+            ImGui::SameLine();
+            ImGui::BeginChild("Col3", ImVec2((float) 20, (float) 8), false, window_flags);
+
+            ImGui::Text("");
+            ImGui::Text("Internal Signal:");
+
+            ImGui::Text("Name:"); ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+            ImGui::Text("%s", ws->is->name.c_str());
+            ImGui::PopStyleColor();
+
+            ImGui::Checkbox("Use this signal", &ws->use_is);
+        }
 
         ImGui::EndChild();
 

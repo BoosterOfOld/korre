@@ -204,7 +204,7 @@ public:
                 }
             }
         }
-        else if (wav_file.numChannels == 1)
+        else if (wav_file.numChannels == 1 || wav_file.numChannels == 0)
         {
             if (wav_file.bitsPerSample == 16)
             {

@@ -2,11 +2,16 @@
 
 #include "sampler.hpp"
 #include "wave.hpp"
+#include "internal_signal.hpp"
 
 class wave_source : public sampler
 {
 public:
     wave *w;
+
+    std::shared_ptr<internal_signal> is;
+    bool use_is;
+
     explicit wave_source(wave *w, uint32_t sample_rate, int16_t max_quant) : sampler(sample_rate, max_quant)
     {
         name = "Wave Source";
@@ -20,6 +25,11 @@ public:
 
     virtual std::tuple<double, double> sample(size_t t) override
     {
+        if (use_is)
+        {
+            return is->sample(t);
+        }
+
         if (w->wav_file.numChannels == 2)
         {
             return { (*w->l)[t], (*w->r)[t] };

@@ -18,6 +18,7 @@ private:
     std::string selected_path;
 
     std::function<void(std::string)> callback;
+    std::function<void(std::string)> ir_callback;
 
     void update_file_list()
     {
@@ -32,9 +33,10 @@ private:
     }
 
 public:
-    explicit audio_select(std::function<void(std::string)> callback)
+    explicit audio_select(std::function<void(std::string)> callback, std::function<void(std::string)> ir_callback)
     {
         this->callback = std::move(callback);
+        this->ir_callback = std::move(ir_callback);
         update_file_list();
     }
 
@@ -44,7 +46,7 @@ public:
     }
 
     int w = 40;
-    int h = 20;
+    int h = 19;
 
     bool is_loading = false;
 
@@ -104,7 +106,17 @@ public:
 
         ImGui::Text(" ");
 
-        ImGui::Text("                ");
+        ImGui::Text(""); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.5f / 7.f, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.5f / 7.f, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.5f / 7.f, 0.8f, 0.8f));
+        if (ImGui::Button(is_loading ? " ---- " : " LOAD AS IR "))
+        {
+            ir_callback(selected_path);
+        }
+        ImGui::PopStyleColor(3);
+
+        ImGui::SameLine(); ImGui::Text("  "); ImGui::SameLine();
         ImGui::SameLine();
         if (ImGui::Button(is_loading ? " ---- " : " LOAD SELECTED AUDIO "))
         {
