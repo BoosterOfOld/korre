@@ -247,24 +247,16 @@ public:
         ImGui::SameLine();
 
 
-        static int t;
-        t = PA_T;
         char buf[32];
         sprintf(buf, "%.0f s", (float)m->pos/(float)PA_SAMPLE_RATE);
         ImGui::SetNextItemWidth(width);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(247.f / 360.f, 1.0f, 0.1));
         ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, (ImVec4)ImColor::HSV(247.f / 360.f, 1.0f, 0.4));
         ImGui::PushStyleColor(ImGuiCol_FrameBgActive, (ImVec4)ImColor::HSV(247.f / 360.f, 1.0f, 0.4));
-        //ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.6f));
         ImGui::PushStyleColor(ImGuiCol_SliderGrab, (ImVec4)ImColor::HSV(54.f / 360.f, 1.0f, 0.9f));
-        //ImGui::Text("SEEK:"); ImGui::SameLine();
         ImGui::SetNextItemWidth(width - 15);
-        ImGui::SliderInt("", &t, 0.0f, PA_SAMPLE_LENGTH, buf);
+        ImGui::SliderInt("", &PA_T, 0.0f, PA_SAMPLE_LENGTH, buf);
         ImGui::PopStyleColor(4);
-        if (t != PA_T)
-        {
-            PA_T = t;
-        }
 
         ImGui::Text("");
 

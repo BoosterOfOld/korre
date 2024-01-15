@@ -43,7 +43,7 @@ static uint32_t PA_NUM_CHANNELS;
 static int PA_SELECTED_DEVICE = 1;
 static bool PA_USE_DEFAULT_DEVICE = true;
 
-static size_t PA_T;
+static int PA_T;
 
 static int paCallback( const void *inputBuffer, void *outputBuffer,
                            unsigned long framesPerBuffer,
