@@ -246,7 +246,6 @@ public:
 
         ImGui::SameLine();
 
-
         char buf[32];
         sprintf(buf, "%.0f s", (float)m->pos/(float)PA_SAMPLE_RATE);
         ImGui::SetNextItemWidth(width);

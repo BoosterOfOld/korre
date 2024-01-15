@@ -131,6 +131,10 @@ public:
         {
             visualizer->join();
         }
+        if (worker != nullptr && worker->joinable())
+        {
+            worker->join();
+        }
     }
 
     static void* thread_proxy(dsp_convolver* ci)
