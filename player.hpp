@@ -23,14 +23,26 @@ private:
     std::shared_ptr<portaudio_sink> pa_sink = nullptr;
     bool running;
 
-    double min_value = DBL_MAX;
-    double max_value = DBL_MIN;
-    int upper_limit = 0;
-    int lower_limit = 0;
+    //double min_value = DBL_MAX;
+    //double max_value = DBL_MIN;
+    //int upper_limit = 0;
+    //int lower_limit = 0;
 
+    /*
     void run_analytics()
     {
-        for (double val : *wav.lr)
+        for (double val : *wav.l)
+        {
+            if (val < min_value)
+            {
+                min_value = val;
+            }
+            if (val > max_value)
+            {
+                max_value = val;
+            }
+        }
+        for (double val : *wav.r)
         {
             if (val < min_value)
             {
@@ -52,7 +64,7 @@ private:
             lower_limit = -pow(2.f,(float)wav.wav_file.bitsPerSample)/2.f;
             upper_limit = pow(2,(float)wav.wav_file.bitsPerSample)/2.f;
         }
-    }
+    }*/
 
 public:
     std::shared_ptr<wave_source> ws = nullptr;
@@ -67,7 +79,7 @@ public:
         stop();
     }
 
-    void load(const char *path)
+    void load(const char *path, bool normalize)
     {
         if (path == nullptr)
         {
@@ -76,8 +88,8 @@ public:
             //wav.load_wav("/Users/northkillpd/temp/sweep.wav");
         }
 
-        wav.load_wav(path);
-        run_analytics();
+        wav.load_wav(path, normalize);
+        //run_analytics();
 
         PA_SAMPLE_RATE = wav.wav_file.sampleRate;
         PA_BIT_DEPTH = wav.wav_file.bitsPerSample;
@@ -86,8 +98,8 @@ public:
         PA_SAMPLE_LENGTH = num_samples;
         PA_NUM_CHANNELS = wav.wav_file.numChannels;
 
-        ws = std::make_shared<wave_source>(&wav, wav.wav_file.sampleRate, upper_limit);
-        m = std::make_shared<meter>(wav.wav_file.sampleRate, max_value);
+        ws = std::make_shared<wave_source>(&wav, wav.wav_file.sampleRate);
+        m = std::make_shared<meter>(wav.wav_file.sampleRate);
         ws->connect_to(m, 1, 1);
         m->connect_to(pa_sink, 1, 1);
     }

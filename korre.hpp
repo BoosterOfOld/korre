@@ -80,7 +80,7 @@ private:
         this->selected_audio = path;
         pl->stop();
         pl = std::make_unique<player>();
-        pl->load(this->selected_audio.c_str());
+        pl->load(this->selected_audio.c_str(), LOADER_NORMALIZE);
         audio_selected = true;
     }
 

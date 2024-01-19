@@ -4,7 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "dohm_signal_orig.hpp"
+#include "internal_signal.hpp"
+
+//#include "dohm_signal_orig.hpp"
 
 typedef struct wav_file {
     unsigned char chunkId[4];
@@ -130,24 +132,17 @@ private:
     bool alloc;
 
 public:
-    std::vector<double> *l;
-    std::vector<double> *r;
-    std::vector<double> *lr;
+    std::shared_ptr<std::vector<double>> l;
+    std::shared_ptr<std::vector<double>> r;
     WavFile wav_file;
+    std::string notes;
 
-    void load_wav(const char *path)
+    void load_wav(const char *path, bool normalize)
     {
         wav_load_raw(path, &wav_file);
 
-        if (alloc)
-        {
-            delete l;
-            delete r;
-        }
-
-        l = new std::vector<double>();
-        r = new std::vector<double>();
-        lr = new std::vector<double>();
+        l = std::make_shared<std::vector<double>>();
+        r = std::make_shared<std::vector<double>>();
 
         alloc = true;
 
@@ -162,9 +157,6 @@ public:
 
                     l->emplace_back((double) li);
                     r->emplace_back((double) ri);
-
-                    lr->emplace_back((double) li);
-                    lr->emplace_back((double) ri);
                 }
             }
             else if (wav_file.bitsPerSample == 24)
@@ -198,9 +190,6 @@ public:
 
                     l->emplace_back((double) li);
                     r->emplace_back((double) ri);
-
-                    lr->emplace_back((double) li);
-                    lr->emplace_back((double) ri);
                 }
             }
         }
@@ -213,7 +202,6 @@ public:
                     int16_t li = wav_file.data[i] | wav_file.data[i + 1] << 8;
 
                     l->emplace_back((double) li);
-                    lr->emplace_back((double) li);
                 }
             }
             else if (wav_file.bitsPerSample == 24)
@@ -245,7 +233,6 @@ public:
                     if (li & 0x800000) li |= ~0xffffff;
 
                     l->emplace_back((double) li);
-                    lr->emplace_back((double) li);
                 }
             }
         }
@@ -254,17 +241,16 @@ public:
             throw(std::runtime_error("Only 1 or 2 channels are supported."));
         }
 
-
-        //lr = &dohm_signal;
+        if (normalize)
+        {
+            g_normalize_to_bit_depth(l, wav_file.bitsPerSample);
+            g_normalize_to_bit_depth(r, wav_file.bitsPerSample);
+            notes.append("N");
+        }
     }
 
     virtual ~wave()
     {
-        if (alloc)
-        {
-            delete l;
-            delete r;
-            delete lr;
-        }
+
     }
 };

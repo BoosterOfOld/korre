@@ -39,7 +39,7 @@ public:
 
     float ceiling=1; // The ceiling of the bin display
 
-    explicit meter(uint32_t sample_rate, uint32_t max_quant) : sampler(sample_rate, max_quant)
+    explicit meter(uint32_t sample_rate) : sampler(sample_rate, 0)
     {
         name = "Meter";
 

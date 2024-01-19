@@ -9,6 +9,8 @@
 #include "imtui/imtui.h"
 #include "imtui/imtui-impl-ncurses.h"
 
+static bool LOADER_NORMALIZE = false;
+
 class audio_select
 {
 private:
@@ -46,7 +48,7 @@ public:
     }
 
     int w = 40;
-    int h = 28;
+    int h = 26;
 
     bool is_loading = false;
 
@@ -89,7 +91,7 @@ public:
         ImGui::Text(" ");
         ImGui::SameLine();
 
-        if (ImGui::BeginListBox("Audio Select", ImVec2(w - 3.f, 19.f)))
+        if (ImGui::BeginListBox("Audio Select", ImVec2(w - 3.f, h - 11.f)))
         {
             for (int n = 0; n < itemies.size(); ++n)
             {
@@ -104,7 +106,10 @@ public:
             ImGui::EndListBox();
         }
 
-        ImGui::Text(" ");
+        ImGui::Text("");
+        ImGui::Text("             "); ImGui::SameLine();
+        ImGui::Checkbox("Normalize track to 0dB", &LOADER_NORMALIZE);
+        ImGui::Text("");
 
         ImGui::Text(""); ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.5f / 7.f, 0.6f, 0.6f));

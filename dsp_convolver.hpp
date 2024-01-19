@@ -155,9 +155,9 @@ public:
 
     void load(const char *path)
     {
-        wav.load_wav(path);
-        ws = std::make_shared<wave_source>(&wav, wav.wav_file.sampleRate, 0);
-        m = std::make_unique<meter>(wav.wav_file.sampleRate, 0);
+        wav.load_wav(path, false);
+        ws = std::make_shared<wave_source>(&wav, wav.wav_file.sampleRate);
+        m = std::make_unique<meter>(wav.wav_file.sampleRate);
         m->roll = 6;
         ws->connect_to(m, 1, 1);
 

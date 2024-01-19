@@ -12,7 +12,7 @@ public:
     std::shared_ptr<internal_signal> is;
     bool use_is;
 
-    explicit wave_source(wave *w, uint32_t sample_rate, int16_t max_quant) : sampler(sample_rate, max_quant)
+    explicit wave_source(wave *w, uint32_t sample_rate) : sampler(sample_rate, 0)
     {
         name = "Wave Source";
         this->w = w;

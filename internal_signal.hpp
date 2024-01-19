@@ -5,43 +5,47 @@
 #include <utility>
 #include <vector>
 
+void g_normalize_to_bit_depth(std::shared_ptr<std::vector<double>> signal, uint16_t bit_depth)
+{
+    double max = 0;
+    double curr;
+    double absc;
+    for(auto i = 0; i < signal->size(); ++i)
+    {
+        curr = (*signal)[i];
+        absc = abs(curr);
+        if ( absc > max )
+        {
+            max = absc;
+        }
+    }
+
+    double normal = ((pow(2,bit_depth) - 1) / max) / 2;
+
+    double mn = DBL_MAX;
+    double mx = DBL_MIN;
+
+    for(auto i = 0; i < signal->size(); ++i)
+    {
+        (*signal)[i] *= normal;
+
+        if ((*signal)[i] > mx)
+        {
+            mx = (*signal)[i];
+        }
+        if ((*signal)[i] < mn)
+        {
+            mn = (*signal)[i];
+        }
+    }
+}
+
 class internal_signal
 {
 private:
-    void normalize_to_bit_depth(std::shared_ptr<std::vector<double>> signal)
+    void normalize_to_bit_depth(std::shared_ptr<std::vector<double>> signal) const
     {
-        double max = 0;
-        double curr;
-        double absc;
-        for(auto i = 0; i < signal->size(); ++i)
-        {
-            curr = (*signal)[i];
-            absc = abs(curr);
-            if ( absc > max )
-            {
-                max = absc;
-            }
-        }
-
-        double normal = ((pow(2,bit_depth) - 1) / max) / 2;
-        //double normal = 10000.0 / max;
-
-        double mn = DBL_MAX;
-        double mx = DBL_MIN;
-
-        for(auto i = 0; i < signal->size(); ++i)
-        {
-            (*signal)[i] *= normal;
-
-            if ((*signal)[i] > mx)
-            {
-                mx = (*signal)[i];
-            }
-            if ((*signal)[i] < mn)
-            {
-                mn = (*signal)[i];
-            }
-        }
+        g_normalize_to_bit_depth(std::move(signal), bit_depth);
     }
 public:
     uint16_t sampling_rate;
