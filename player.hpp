@@ -23,6 +23,8 @@ private:
     std::shared_ptr<portaudio_sink> pa_sink = nullptr;
     bool running;
 
+    bool logx = true;
+
     //double min_value = DBL_MAX;
     //double max_value = DBL_MIN;
     //int upper_limit = 0;
@@ -288,64 +290,103 @@ public:
         i = 3;
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (ImVec4)ImColor::HSV(i / 7.0f, 0.6f, 0.6f));
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0, 0, 0));
-        ImGui::PlotLines("", m->wind_avg, m->bin_range, 0, "FREQUENCY SPECTRUM", 0.f, m->ceiling, ImVec2(width, 15));
+        //ImGui::Checkbox("Logarithmic scale", &logx);
+        if (logx)
+        {
+            //ImGui::PlotLines("", m->wind_avg_log, m->bin_range, 0, "FREQUENCY SPECTRUM", 0.f, 1.0,ImVec2(width, 15));
+
+            ImGui::PlotLines("", m->compacted, m->compact_columns, 0, "FREQUENCY SPECTRUM", 0.f, 1.0,ImVec2(width, 15));
+            //ImGui::PlotHistogram("", m->compacted, m->compact_columns, 0, nullptr, 0.f, 1.f, ImVec2(width, 15));
+        }
+        else
+        {
+            ImGui::PlotLines("", m->wind_avg, m->bin_range, 0, "FREQUENCY SPECTRUM", 0.f, m->ceiling, ImVec2(width, 15));
+        }
         ImGui::PopStyleColor(2);
 
         ImGui::Text(" ");
         //ImGui::Text(" ");
 
-        if (m->last_bin_freq == 20000)
+        if (logx)
         {
-            ImGui::Text("10                5|k                 10k                 15k               20k");
+            if (m->last_bin_freq == 20000)
+            {
+                ImGui::Text("10Hz     50     100     200     400        1k      2k      4k      8k    13 18");
+            }
         }
-        else if (m->last_bin_freq == 16000)
+        else
         {
-            ImGui::Text("10                4|k                 8|k                 12k               16k");
-        }
-        else if (m->last_bin_freq == 12000)
-        {
-            ImGui::Text("10                3|k                 6|k                 9|k               12k");
-        }
-        else if (m->last_bin_freq == 8000)
-        {
-            ImGui::Text("10                2|k                 4|k                 6|k               8k|");
+            if (m->last_bin_freq == 20000)
+            {
+                ImGui::Text("10                5|k                 10k                 15k               20k");
+            }
+            else if (m->last_bin_freq == 16000)
+            {
+                ImGui::Text("10                4|k                 8|k                 12k               16k");
+            }
+            else if (m->last_bin_freq == 12000)
+            {
+                ImGui::Text("10                3|k                 6|k                 9|k               12k");
+            }
+            else if (m->last_bin_freq == 8000)
+            {
+                ImGui::Text("10                2|k                 4|k                 6|k               8k|");
+            }
         }
 
-        static int f_range_type = 0;
-        ImGui::Text("Upper limit: "); ImGui::SameLine();
-        ImGui::RadioButton("20 kHz", &f_range_type, 0); ImGui::SameLine();
-        ImGui::RadioButton("16 kHz", &f_range_type, 1); ImGui::SameLine();
-        ImGui::RadioButton("12 kHz", &f_range_type, 2); ImGui::SameLine();
-        ImGui::RadioButton("8 kHz", &f_range_type, 3); ImGui::SameLine();
-        ImGui::Text("| Window:"); ImGui::SameLine();
-        ImGui::Checkbox("Hanning", &(m->apply_hann));
-
-        switch (f_range_type)
+        if (logx)
         {
-            case 0:
-                if (m->last_bin_freq != 20000)
-                {
-                    m->update_range(20000);
-                }
-                break;
-            case 1:
-                if (m->last_bin_freq != 16000)
-                {
-                    m->update_range(16000);
-                }
-                break;
-            case 2:
-                if (m->last_bin_freq != 12000)
-                {
-                    m->update_range(12000);
-                }
-                break;
-            case 3:
-                if (m->last_bin_freq != 8000)
-                {
-                    m->update_range(8000);
-                }
-                break;
+            ImGui::Text("");
+
+            if (m->last_bin_freq != 20000)
+            {
+                m->update_range(20000);
+            }
+        }
+        else
+        {
+            static int f_range_type = 0;
+            ImGui::Text("Upper limit: ");
+            ImGui::SameLine();
+            ImGui::RadioButton("20 kHz", &f_range_type, 0);
+            ImGui::SameLine();
+            ImGui::RadioButton("16 kHz", &f_range_type, 1);
+            ImGui::SameLine();
+            ImGui::RadioButton("12 kHz", &f_range_type, 2);
+            ImGui::SameLine();
+            ImGui::RadioButton("8 kHz", &f_range_type, 3);
+            ImGui::SameLine();
+            ImGui::Text("| Window:");
+            ImGui::SameLine();
+            ImGui::Checkbox("Hanning", &(m->apply_hann));
+
+            switch (f_range_type)
+            {
+                case 0:
+                    if (m->last_bin_freq != 20000)
+                    {
+                        m->update_range(20000);
+                    }
+                    break;
+                case 1:
+                    if (m->last_bin_freq != 16000)
+                    {
+                        m->update_range(16000);
+                    }
+                    break;
+                case 2:
+                    if (m->last_bin_freq != 12000)
+                    {
+                        m->update_range(12000);
+                    }
+                    break;
+                case 3:
+                    if (m->last_bin_freq != 8000)
+                    {
+                        m->update_range(8000);
+                    }
+                    break;
+            }
         }
 
         ImGui::Spacing();
