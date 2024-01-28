@@ -13,6 +13,7 @@
 #include "wave_source.hpp"
 #include "meter.hpp"
 #include "internal_signal.hpp"
+#include "windowth.hpp"
 
 class player
 {
@@ -70,8 +71,8 @@ public:
         pa_sink->plug();
     }
 
-    int width = 80;
-    int height = 30;
+    int width = 81;
+    int height = 37;
     int spacer = 2;
 
     void set_is(std::shared_ptr<internal_signal> isx) const
@@ -82,16 +83,20 @@ public:
     void on_frame()
     {
         ImGui::SetNextWindowPos(ImVec2((float)3, (float)3), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2((float)(0 + width + 0 + 1), (float)height + 2), ImGuiCond_Once);
 
-        ImGui::Begin("Audio Player");
+        windowth(width, height, "Audio_Player", [this]()->void {render_content();});
+    }
 
+    void render_content()
+    {
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar;
 
         ImGui::Text("");
 
+        ImGui::Text("  ");ImGui::SameLine();
         ImGui::BeginChild("Col1", ImVec2(28.f, (float)8), false, window_flags);
 
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         ImGui::Text(R"(.------------------------.)");
         ImGui::Text(R"(|\\////////       90 min |)");
         ImGui::Text(R"(| \/  __  ______  __     |)");
@@ -100,6 +105,7 @@ public:
         ImGui::Text(R"(| A   ______________     |)");
         ImGui::Text(R"(|    /              \    |)");
         ImGui::Text(R"(|___/_._o________o_._\___|)");
+        ImGui::PopStyleColor();
 
         ImGui::EndChild();
         ImGui::SameLine();
@@ -108,40 +114,40 @@ public:
         ImGui::Text("");
         //ImGui::Text(("File Format: " + std::string((const char *)wav.wav_file.format, 4)).c_str());
 
-        ImGui::Text("Audio Format:"); ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+        ImGui::Text("Audio Format: "); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         ImGui::Text((std::string((const char *)wav.wav_file.format, 4) + "/" + std::string((wav.wav_file.audioFormat == 1 ? "PCM" : "Non-PCM"))).c_str());
         ImGui::PopStyleColor();
 
-        ImGui::Text("Sampling Rate:"); ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+        ImGui::Text("Sampling Rate: "); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         ImGui::Text("%s", std::to_string(wav.wav_file.sampleRate).c_str());
         ImGui::PopStyleColor();
 
-        ImGui::Text("Bit Depth:"); ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+        ImGui::Text("Bit Depth: "); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         ImGui::Text("%s", std::to_string(wav.wav_file.bitsPerSample).c_str());
         ImGui::PopStyleColor();
 
-        ImGui::Text("Channels:"); ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+        ImGui::Text("Channels: "); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         ImGui::Text("%s", std::to_string(wav.wav_file.numChannels).c_str());
         ImGui::PopStyleColor();
 
-        ImGui::Text("Data Size:"); ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+        ImGui::Text("Data Size: "); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         ImGui::Text("%s", (std::to_string((float)wav.wav_file.subchunk2Size / 1048576.f) + " MB").c_str());
         ImGui::PopStyleColor();
 
         int num_samples = ((float)wav.wav_file.subchunk2Size / (float)wav.wav_file.numChannels) / ((float)wav.wav_file.bitsPerSample / 8.f);
 
-        ImGui::Text("Number of Samples:"); ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+        ImGui::Text("Number of Samples: "); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         ImGui::Text("%s", std::to_string( num_samples ).c_str());
         ImGui::PopStyleColor();
 
-        ImGui::Text("Duration:"); ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+        ImGui::Text("Duration: "); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         ImGui::Text("%s", (std::to_string( num_samples / (float)wav.wav_file.sampleRate ) + " s").c_str());
         ImGui::PopStyleColor();
 
@@ -173,10 +179,12 @@ public:
         ImGui::Text("");
 
         double i = pa_sink->is_open() ? 55.f / 360.f : 2.f / 7.f;
-        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(i, 0.6f, 0.6f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(i, 0.7f, 0.7f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(i, 0.8f, 0.8f));
-        if (ImGui::Button(pa_sink->is_open() ? " PAUSE " : " >PLAY "))
+        //ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(i, 0.6f, 0.6f));
+        //ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(i, 0.7f, 0.7f));
+        //ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(i, 0.8f, 0.8f));
+
+        ImGui::Text(" ");ImGui::SameLine();
+        if (ImGui::Button(pa_sink->is_open() ? " ⏸ \n PAUSE \n" : " ▶ \n PLAY  \n"))
         {
             running = !running;
 
@@ -191,14 +199,17 @@ public:
                 running = true;
             }
         }
-        ImGui::PopStyleColor(3);
+        //ImGui::PopStyleColor(3);
 
         ImGui::SameLine();
 
-        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 0.6f, 0.6f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.7f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.8f, 0.8f));
-        if (ImGui::Button(" STOP "))
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
+
+        //ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 0.6f, 0.6f));
+        //ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.7f));
+        //ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.8f, 0.8f));
+        ImGui::Text(" ");ImGui::SameLine();
+        if (ImGui::Button(" ⏹ \n STOP \n"))
         {
             running = !running;
 
@@ -210,18 +221,23 @@ public:
             PA_T = 0;
             m->pos = 0;
         }
-        ImGui::PopStyleColor(3);
+        //ImGui::PopStyleColor(3);
 
-        ImGui::SameLine();
+        ImGui::SameLine(); ImGui::Text(" "); ImGui::SameLine();
 
         char buf[32];
-        sprintf(buf, "%.0f s", (float)m->pos/(float)PA_SAMPLE_RATE);
+        sprintf(buf, "\n%.0f s", (float)m->pos/(float)PA_SAMPLE_RATE);
         ImGui::SetNextItemWidth(width);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(247.f / 360.f, 1.0f, 0.1));
-        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, (ImVec4)ImColor::HSV(247.f / 360.f, 1.0f, 0.4));
-        ImGui::PushStyleColor(ImGuiCol_FrameBgActive, (ImVec4)ImColor::HSV(247.f / 360.f, 1.0f, 0.4));
-        ImGui::PushStyleColor(ImGuiCol_SliderGrab, (ImVec4)ImColor::HSV(54.f / 360.f, 1.0f, 0.9f));
-        ImGui::SetNextItemWidth(width - 15);
+        //ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(247.f / 360.f, 1.0f, 0.1));
+        //ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, (ImVec4)ImColor::HSV(247.f / 360.f, 1.0f, 0.4));
+        //ImGui::PushStyleColor(ImGuiCol_FrameBgActive, (ImVec4)ImColor::HSV(247.f / 360.f, 1.0f, 0.4));
+        //ImGui::PushStyleColor(ImGuiCol_SliderGrab, (ImVec4)ImColor::HSV(54.f / 360.f, 1.0f, 0.9f));
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor(30, 30, 30));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, (ImVec4)ImColor(60, 60, 60));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgActive, (ImVec4)ImColor(60, 60, 60));
+        ImGui::PushStyleColor(ImGuiCol_SliderGrab, (ImVec4)ImColor(255,255,104));
+
+        ImGui::SetNextItemWidth(width - 19);
         ImGui::SliderInt("", &PA_T, 0.0f, PA_SAMPLE_LENGTH, buf);
         ImGui::PopStyleColor(4);
 
@@ -240,22 +256,70 @@ public:
 
         //ImGui::Text("");
 
+        static auto num_col = (ImVec4)ImColor(120,220,238);
+        //static auto num_col = (ImVec4)ImColor(255,255,104);
 
+        ImGui::Text("╒════════════════════════════╡Frequency_Spectrum╞════════════════════════════╕");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        ImGui::Text("│                                                                            │");
+        //ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(120,220,238));
+        //ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,104));
+        ImGui::Text("├╢"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, num_col); ImGui::SameLine();ImGui::Text("20Hz"); ImGui::SameLine(); ImGui::PopStyleColor();
+        ImGui::Text("╟──╢"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, num_col); ImGui::SameLine();ImGui::Text("50"); ImGui::SameLine(); ImGui::PopStyleColor();
+        ImGui::Text("╟───╢"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, num_col); ImGui::SameLine();ImGui::Text("100"); ImGui::SameLine(); ImGui::PopStyleColor();
+        ImGui::Text("╟───╢"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, num_col); ImGui::SameLine();ImGui::Text("200"); ImGui::SameLine(); ImGui::PopStyleColor();
+        ImGui::Text("╟──╢"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, num_col); ImGui::SameLine();ImGui::Text("400"); ImGui::SameLine(); ImGui::PopStyleColor();
+        ImGui::Text("╟──────╢"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, num_col); ImGui::SameLine();ImGui::Text("1k"); ImGui::SameLine(); ImGui::PopStyleColor();
+        ImGui::Text("╟───╢"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, num_col); ImGui::SameLine();ImGui::Text("2k"); ImGui::SameLine(); ImGui::PopStyleColor();
+        ImGui::Text("╟────╢"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, num_col); ImGui::SameLine();ImGui::Text("4k"); ImGui::SameLine(); ImGui::PopStyleColor();
+        ImGui::Text("╟────╢"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, num_col); ImGui::SameLine();ImGui::Text("8k"); ImGui::SameLine(); ImGui::PopStyleColor();
+        ImGui::Text("╟──╢"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, num_col); ImGui::SameLine();ImGui::Text("13"); ImGui::SameLine(); ImGui::PopStyleColor();
+        ImGui::Text("╟╢"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, num_col); ImGui::SameLine();ImGui::Text("2"); ImGui::SameLine(); ImGui::PopStyleColor();
+
+        ImGui::Text("┤");
+
+        //ImGui::Text("├╢20Hz╟──╢50╟───╢100╟───╢200╟──╢400╟──────╢1k╟───╢2k╟────╢4k╟────╢8k╟──╢13╟╢2┤");
+
+        ImGui::Text("╘╩════╩══╩══╩═══╩═══╩═══╩═══╩══╩═══╩══════╩══╩═══╩══╩════╩══╩════╩══╩══╩══╩╩═╛");
+
+        //ImGui::Text("");
+
+        ImGui::SetCursorPos(ImVec2(-1,14+1));
+
+        ImGui::Text("  ");ImGui::SameLine();
         i = 3;
-        ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (ImVec4)ImColor::HSV(i / 7.0f, 0.6f, 0.6f));
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0, 0, 0));
-        ImGui::PlotLines("", m->compacted, m->compact_columns, 0, "FREQUENCY SPECTRUM", 0.f, 1.0,ImVec2(width, 15));
+        //ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (ImVec4)ImColor::HSV(i / 7.0f, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_PlotLines, (ImVec4)ImColor(251,244,224));
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor(0, 0, 0));
+        ImGui::PlotLines("", m->compacted, m->compact_columns, 0, "", 0.f, 1.0,ImVec2(width-6, 15));
         ImGui::PopStyleColor(2);
 
-        ImGui::Text(" ");
+        //ImGui::Text(" ");
 
-        ImGui::Text("10Hz     50     100     200     400        1k      2k      4k      8k    13 18");
+        //ImGui::Text("10Hz     50     100     200     400        1k      2k      4k      8k    13 18");
 
-        ImGui::Text("");
 
-        //ImGui::Spacing();
 
-        ImGui::End();
+        ImGui::SetCursorPos(ImVec2(-1,14+15+5));
+
+        ImGui::Text("blah");
+
+        ImGui::PopStyleColor();
     }
 
 

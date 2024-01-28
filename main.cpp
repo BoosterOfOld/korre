@@ -3,6 +3,8 @@
 //
 #include <cmath>
 #include <iostream>
+#include <clocale>
+#include <cwchar>
 
 #include "imtui/imtui.h"
 #include "imtui/imtui-impl-ncurses.h"
@@ -11,6 +13,8 @@
 
 int main(int argc, char *argv[])
 {
+    setlocale(LC_ALL, "");
+
     korre korr;
 
     korr.run();

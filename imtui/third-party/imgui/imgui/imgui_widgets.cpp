@@ -2961,7 +2961,7 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
     // Render grab
     if (grab_bb.Max.x > grab_bb.Min.x) {
         //window->DrawList->AddRectFilled(grab_bb.Min, grab_bb.Max, GetColorU32(g.ActiveId == id ? ImGuiCol_SliderGrabActive : ImGuiCol_SliderGrab), style.GrabRounding);
-        window->DrawList->AddText(grab_bb.Min + ImVec2(0.5*(grab_bb.Max.x - grab_bb.Min.x), -2), GetColorU32(g.ActiveId == id ? ImGuiCol_SliderGrabActive : ImGuiCol_SliderGrab), "I");
+        window->DrawList->AddText(grab_bb.Min + ImVec2(0.5*(grab_bb.Max.x - grab_bb.Min.x), -2), GetColorU32(g.ActiveId == id ? ImGuiCol_SliderGrabActive : ImGuiCol_SliderGrab), "█▐");
     }
 
     // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.

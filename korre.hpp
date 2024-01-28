@@ -16,7 +16,7 @@ class korre
 private:
     bool exit = false;
     ImTui::TScreen* screen;
-    std::string title_text = "Korre ";
+    std::string title_text = u8"╣Korre"; //  ╣Korre
 
     std::unique_ptr<player> pl;
     std::unique_ptr<audio_select> as;
@@ -32,6 +32,8 @@ private:
     int selected_device = 0;
     std::vector<std::string> device_names;
     std::vector<std::string> device_srs;
+
+    bool convolver_enabled = false;
 
     void refresh_devices()
     {
@@ -96,10 +98,12 @@ private:
                 [this](const std::shared_ptr<internal_signal>& is)->void
                 {
                     pl->ws->is = is;
-                }
+                },
+                [this]()->void { convolver_enabled = false; }
                 );
         dc->load(this->selected_ir.c_str());
         ir_selected = true;
+        convolver_enabled = true;
     }
 
     void main_loop()
@@ -127,7 +131,7 @@ private:
         {
             pl->on_frame();
         }
-        if (ir_selected)
+        if (convolver_enabled)
         {
             dc->on_frame();
         }
@@ -148,6 +152,14 @@ private:
                 if(ImGui::MenuItem("Exit", nullptr, nullptr))
                 {
                     exit = true;
+                }
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Modules"))
+            {
+                if(ImGui::MenuItem("Convolver", nullptr, nullptr))
+                {
+                    convolver_enabled = true;
                 }
                 ImGui::EndMenu();
             }

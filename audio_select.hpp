@@ -8,6 +8,7 @@
 
 #include "imtui/imtui.h"
 #include "imtui/imtui-impl-ncurses.h"
+#include "windowth.hpp"
 
 static bool LOADER_NORMALIZE = false;
 
@@ -47,26 +48,30 @@ public:
         ;
     }
 
-    int w = 40;
-    int h = 26;
+    int w = 41;
+    int h = 29;
 
     bool is_loading = false;
 
     void on_frame()
     {
         ImGui::SetNextWindowPos(ImVec2((float)86, (float)3), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2((float)(w + 1), (float)h + 2), ImGuiCond_Once);
 
-        ImGui::Begin("Audio Select");
+        windowth(w, h, "Audio_Select", [this]()->void {render_content();});
+    }
 
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar;
+    void render_content()
+    {
 
         ImGui::Text(" ");
         ImGui::Text("Workspace:");
 
         ImGui::Text(" ");
 
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor(30, 30, 30));
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,104));
         static char wksp[182] = "/Users/northkillpd/temp/"; ImGui::InputText("", wksp, 128);
+        ImGui::PopStyleColor(2);
         ImGui::SameLine();
         if (ImGui::Button(" RELOAD "))
         {
@@ -82,8 +87,10 @@ public:
         }
         else
         {
-            ImGui::Text("Selected audio: ");
+            ImGui::Text("Selected: ");
+            ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
             ImGui::SameLine(); ImGui::Text("%s", itemies[item_current_idx].filename().c_str());
+            ImGui::PopStyleColor();
             selected_path = itemies[item_current_idx];
         }
         ImGui::Text(" ");
@@ -91,7 +98,9 @@ public:
         ImGui::Text(" ");
         ImGui::SameLine();
 
-        if (ImGui::BeginListBox("Audio Select", ImVec2(w - 3.f, h - 11.f)))
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor(30, 30, 30));
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,104));
+        if (ImGui::BeginListBox("Audio Select", ImVec2(w - 2.f, h - 15.f)))
         {
             for (int n = 0; n < itemies.size(); ++n)
             {
@@ -105,29 +114,35 @@ public:
             }
             ImGui::EndListBox();
         }
+        ImGui::PopStyleColor(2);
 
         ImGui::Text("");
         ImGui::Text("             "); ImGui::SameLine();
-        ImGui::Checkbox("Normalize track to 0dB", &LOADER_NORMALIZE);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor(60, 60, 60));
+        ImGui::Checkbox(" Normalize track to 0dB", &LOADER_NORMALIZE);
+        ImGui::PopStyleColor();
         ImGui::Text("");
 
         ImGui::Text(""); ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.5f / 7.f, 0.6f, 0.6f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.5f / 7.f, 0.7f, 0.7f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.5f / 7.f, 0.8f, 0.8f));
+        //ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.5f / 7.f, 0.6f, 0.6f));
+        //ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.5f / 7.f, 0.7f, 0.7f));
+        //ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.5f / 7.f, 0.8f, 0.8f));
+
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
+        ImGui::Text(" ");ImGui::SameLine();
         if (ImGui::Button(is_loading ? " ---- " : " LOAD AS IR "))
         {
             ir_callback(selected_path);
         }
-        ImGui::PopStyleColor(3);
+        //ImGui::PopStyleColor(3);
 
-        ImGui::SameLine(); ImGui::Text("  "); ImGui::SameLine();
+        ImGui::SameLine(); ImGui::Text("   "); ImGui::SameLine();
         ImGui::SameLine();
+
         if (ImGui::Button(is_loading ? " ---- " : " LOAD SELECTED AUDIO "))
         {
             callback(selected_path);
         }
-
-        ImGui::End();
+        ImGui::PopStyleColor();
     }
 };

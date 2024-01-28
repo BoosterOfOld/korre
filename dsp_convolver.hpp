@@ -7,6 +7,7 @@
 
 #include "meter.hpp"
 #include "wave_source.hpp"
+#include "windowth.hpp"
 
 #include "imtui/imtui.h"
 #include "imtui/imtui-impl-ncurses.h"
@@ -22,6 +23,7 @@ private:
     std::unique_ptr<std::thread> visualizer;
     std::function<std::shared_ptr<wave_source>(void)> obtain_input;
     std::function<void(std::shared_ptr<internal_signal>)> yield_signal;
+    std::function<void(void)> close;
     std::unique_ptr<std::thread> worker;
 
     bool stop = false;
@@ -117,11 +119,13 @@ public:
 
     explicit dsp_convolver(
             std::function<std::shared_ptr<wave_source>(void)> obtain_input,
-            std::function<void(std::shared_ptr<internal_signal>)> yield_signal
+            std::function<void(std::shared_ptr<internal_signal>)> yield_signal,
+            std::function<void(void)> close
     )
     {
         this->obtain_input = std::move(obtain_input);
         this->yield_signal = std::move(yield_signal);
+        this->close = std::move(close);
     }
 
     virtual ~dsp_convolver()
@@ -189,29 +193,38 @@ public:
         yield_signal(x);
     }
 
-    int w = 34;
+    int w = 36;
     int h = 19;
+
+    bool focused = false;
 
     size_t t = 0;
     void on_frame()
     {
         ImGui::SetNextWindowPos(ImVec2((float)65, (float)15), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2((float)(w + 1), (float)h + 2), ImGuiCond_Once);
 
-        ImGui::Begin("DSP: Convolver");
+        windowth(w, h, "DSP:_Convolver", [this]()->void {render_content();});
+    }
 
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar;
-
-        //if ((t%60) == 0)
+    void render_content()
+    {
+        ImGuiWindowFlags window_flags =
+                ImGuiWindowFlags_NoScrollbar |
+                ImGuiWindowFlags_NoScrollWithMouse |
+                ImGuiWindowFlags_NoSavedSettings |
+                ImGuiWindowFlags_NoTitleBar |
+                ImGuiWindowFlags_NoCollapse |
+                ImGuiWindowFlags_NoResize;
 
         ImGui::Text("");
         ImGui::TextWrapped("Convolve the audio signal with an impulse response");
         ImGui::Text("");
 
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         ImGui::Text(R"( ______________________________)");
         ImGui::Text(R"(|,--------------------------.  |)");
 
-        ImGui::BeginChild("ColA1", ImVec2(4.f, (float)7), false, window_flags);
+        // Child 1
         ImGui::Text(R"(||)");
         ImGui::Text(R"(||)");
         ImGui::Text(R"(||)");
@@ -219,31 +232,44 @@ public:
         ImGui::Text(R"(||)");
         ImGui::Text(R"(||)");
         ImGui::Text(R"(||)");
-        ImGui::EndChild(); ImGui::SameLine();
 
-        ImGui::BeginChild("ColA2", ImVec2(22.f, (float)7), false, window_flags);
-        ImGui::PushStyleColor(ImGuiCol_PlotLines, (ImVec4)ImColor::HSV(120.f/360.f, 1.0f, 0.7f));
-        //ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0, 0, 0));
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0, 0, 50.f/360.f));
-        ImGui::PlotLines("", m->wind_avg, m->bin_range, 0, "IR SPECTRUM", 0.f, m->ceiling, ImVec2(22, 7));
-        ImGui::PopStyleColor(2);
-        ImGui::EndChild(); ImGui::SameLine();
+        ImGui::SetCursorPos(ImVec2(1,6));
+/*
+        // Child 2
 
-        ImGui::BeginChild("ColA3", ImVec2(9.f, (float)7), false, window_flags);
+*/
+        ImGui::SetCursorPos(ImVec2(27,6));
+        // Child 3
         ImGui::Text(R"( |=|)");
+        ImGui::SetCursorPos(ImVec2(27,6));
         ImGui::Text(R"( | |)");
+        ImGui::SetCursorPos(ImVec2(27,7));
         ImGui::Text(R"(|| |)");
+        ImGui::SetCursorPos(ImVec2(27,8));
         ImGui::Text(R"(|| |)");
+        ImGui::SetCursorPos(ImVec2(27,9));
         ImGui::Text(R"(|| |)");
+        ImGui::SetCursorPos(ImVec2(27,10));
         ImGui::Text(R"(|| |)");
+        ImGui::SetCursorPos(ImVec2(27,11));
         ImGui::Text(R"(o| |)");
-        ImGui::EndChild();
 
+        ImGui::SetCursorPos(ImVec2(-1,12));
         ImGui::Text(R"(|`---------------------------' |)");
         ImGui::Text(R"( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~)");
 
-        ImGui::Text("");
+        ImGui::SetCursorPos(ImVec2(3,6));
+        ImGui::BeginChild("dd", ImVec2(25,6), false, window_flags);
+        //ImGui::PushStyleColor(ImGuiCol_PlotLines, (ImVec4)ImColor::HSV(120.f/360.f, 1.0f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_PlotLines, (ImVec4)ImColor(71, 167, 169));
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0, 0, 0.f/360.f));
+        ImGui::PlotLines("", m->wind_avg, m->bin_range, 0, "IR SPECTRUM", 0.f, m->ceiling, ImVec2(25, 7));
+        ImGui::PopStyleColor(2);
+        ImGui::EndChild();
 
+        ImGui::SetCursorPos(ImVec2(-1,14));
+
+        ImGui::PopStyleColor();
 
         if (in_progress)
         {
@@ -261,21 +287,20 @@ public:
             ImGui::Text("");
         }
 
-        ImGui::Text("");
+        //ImGui::Text("");
 
         static bool bypass;
-        ImGui::Text("            "); ImGui::SameLine();
-        ImGui::Checkbox("Bypass", &bypass); ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 0.6f, 0.6f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.7f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.8f, 0.8f));
+        ImGui::Text("                      "); ImGui::SameLine();
+        //ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 0.6f, 0.6f));
+        //ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.7f));
+        //ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.8f, 0.8f));
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         if(ImGui::Button(" CONVOLVE "))
         {
             run(obtain_input());
         }
-        ImGui::PopStyleColor(3);
-
-        ImGui::End();
+        ImGui::PopStyleColor();
+        //ImGui::PopStyleColor(3);
     }
 };
 

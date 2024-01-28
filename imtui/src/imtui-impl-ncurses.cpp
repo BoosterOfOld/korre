@@ -24,7 +24,7 @@
 #define KEY_BACKSPACE    (8) /* not on pc */
 #define KEY_F0           (KEY_OFFSET + 0x08) /* function keys; 64 reserved */
 #else
-#include <ncurses.h>
+#include <ncursesw/ncurses.h>
 #endif
 
 #include <array>
@@ -34,7 +34,54 @@
 #include <string>
 #include <thread>
 
+static std::string UnicodeToUTF8(unsigned int codepoint)
+{
+    std::string out;
+
+    if (codepoint <= 0x7f)
+        out.append(1, static_cast<char>(codepoint));
+    else if (codepoint <= 0x7ff)
+    {
+        out.append(1, static_cast<char>(0xc0 | ((codepoint >> 6) & 0x1f)));
+        out.append(1, static_cast<char>(0x80 | (codepoint & 0x3f)));
+    }
+    else if (codepoint <= 0xffff)
+    {
+        out.append(1, static_cast<char>(0xe0 | ((codepoint >> 12) & 0x0f)));
+        out.append(1, static_cast<char>(0x80 | ((codepoint >> 6) & 0x3f)));
+        out.append(1, static_cast<char>(0x80 | (codepoint & 0x3f)));
+    }
+    else
+    {
+        out.append(1, static_cast<char>(0xf0 | ((codepoint >> 18) & 0x07)));
+        out.append(1, static_cast<char>(0x80 | ((codepoint >> 12) & 0x3f)));
+        out.append(1, static_cast<char>(0x80 | ((codepoint >> 6) & 0x3f)));
+        out.append(1, static_cast<char>(0x80 | (codepoint & 0x3f)));
+    }
+    return out;
+}
+
+
 namespace {
+    static const char *map_ext(uint8_t cc)
+    {
+        switch (cc)
+        {
+            case (uint8_t)*D_HORT: return u8"═";
+            case (uint8_t)*D_VERT: return u8"║";
+            case (uint8_t)*D_TOP_LEFT: return u8"╔";
+            case (uint8_t)*D_TOP_RIGHT: return u8"╗";
+            case (uint8_t)*D_BOTTOM_LEFT: return u8"╚";
+            case (uint8_t)*D_BOTTOM_RIGHT: return u8"╝";
+            case (uint8_t)*D_VERT_D_LEFT_SPLIT: return u8"╣";
+            case (uint8_t)*D_VERT_D_RIGHT_SPLIT: return u8"╠";
+            case (uint8_t)*D_HORT_D_BOTTOM_SPLIT: return u8"╦";
+            case (uint8_t)*D_HORT_D_TOP_SPLIT: return u8"╩";
+            case (uint8_t)*D_CROSS: return u8"╬";
+        }
+        return "!";
+    }
+
     struct VSync {
         VSync(double fps_active = 60.0, double fps_idle = 60.0) :
             tStepActive_us(1000000.0/fps_active),
@@ -278,8 +325,14 @@ bool ImTui_ImplNcurses_NewFrame() {
 static int nColPairs = 1;
 static int nActiveFrames = 10;
 static ImTui::TScreen screenPrev;
-static std::vector<uint8_t> curs;
+//static std::vector<uint8_t> curs;
+static std::vector<std::string> wcurs;
 static std::array<std::pair<bool, int>, 256*256> colPairs;
+
+void ImTui_ImplNcurses_Clear()
+{
+    clear();
+}
 
 void ImTui_ImplNcurses_DrawScreen(bool active) {
     if (active) nActiveFrames = 10;
@@ -291,70 +344,121 @@ void ImTui_ImplNcurses_DrawScreen(bool active) {
 
     bool compare = true;
 
-    if (screenPrev.nx != nx || screenPrev.ny != ny) {
+
+    if (screenPrev.nx != nx || screenPrev.ny != ny)
+    {
         screenPrev.resize(nx, ny);
         compare = false;
     }
 
     int ic = 0;
-    curs.resize(nx + 1);
+    //curs.resize(nx + 1);
+    wcurs.resize(nx + 1);
 
-    for (int y = 0; y < ny; ++y) {
+    //addstr("╣");
+
+    for (int y = 0; y < ny; ++y)
+    {
         bool isSame = compare;
-        if (compare) {
-            for (int x = 0; x < nx; ++x) {
-                if (screenPrev.data[y*nx + x] != g_screen->data[y*nx + x]) {
+        if (compare)
+        {
+            for (int x = 0; x < nx; ++x)
+            {
+                if ((screenPrev.data[y*nx + x] != g_screen->data[y*nx + x]) || (screenPrev.str_data[y*nx + x] != g_screen->str_data[y*nx + x]))
+                //if (screenPrev.str_data[y*nx + x] != g_screen->str_data[y*nx + x])
+                {
                     isSame = false;
                     break;
                 }
             }
         }
-        if (isSame) continue;
+        //if (isSame) continue;
 
         int lastp = 0xFFFFFFFF;
         move(y, 0);
-        for (int x = 0; x < nx; ++x) {
+
+        for (int x = 0; x < nx; ++x)
+        {
             const auto cell = g_screen->data[y*nx + x];
+            const auto str_cell = g_screen->str_data[y*nx + x];
             const uint16_t f = (cell & 0x00FF0000) >> 16;
             const uint16_t b = (cell & 0xFF000000) >> 24;
             const uint16_t p = b*256 + f;
 
-            if (colPairs[p].first == false) {
+            if (colPairs[p].first == false)
+            {
                 init_pair(nColPairs, f, b);
                 colPairs[p].first = true;
                 colPairs[p].second = nColPairs;
                 ++nColPairs;
             }
 
-            if (lastp != (int) p) {
-                if (curs.size() > 0) {
-                    curs[ic] = 0;
-                    addstr((char *) curs.data());
+            if (lastp != (int) p)
+            {
+                if (!wcurs.empty())
+                {
+                    //curs[ic] = 0;
+                    wcurs[ic] = "";
+                    std::string appendage;
+                    for (const auto &wcur : wcurs)
+                    {
+                        if(wcur.empty())
+                        {
+                            break;
+                        }
+                        appendage.append(wcur);
+                    }
+                    addstr(appendage.data());
+                    //addstr((char *)curs.data());
+
                     ic = 0;
-                    curs[0] = 0;
+                    //curs[0] = 0;
+                    wcurs[0] = "";
                 }
                 attron(COLOR_PAIR(colPairs[p].second));
                 lastp = p;
             }
 
-            const uint16_t c = cell & 0x0000FFFF;
-            curs[ic++] = c > 0 ? c : ' ';
+            //const uint16_t c = cell & 0x0000FFFF;
+            //const uint16_t c = cell & 0xFFFFFFFF;
+            //curs[ic] = c > 0 ? c : ' ';
+            wcurs[ic] = str_cell > 0 ? UnicodeToUTF8(str_cell) : " ";
+            ++ic;
         }
 
-        if (curs.size() > 0) {
-            curs[ic] = 0;
-            addstr((char *) curs.data());
+        if (!wcurs.empty()) {
+            //curs[ic] = 0;
+            wcurs[ic] = "";
+            //addstr((char *) curs.data());
+            //addstr(wcurs.c_str());
+            //addstr("\xe2Korre");
+
+            std::string appendage;
+            for (const auto &wcur : wcurs)
+            {
+                if(wcur.empty())
+                {
+                    break;
+                }
+                appendage.append(wcur);
+            }
+            addstr(appendage.data());
+            //addstr((char *) curs.data());
+
             ic = 0;
-            curs[0] = 0;
+            //curs[0] = 0;
+            wcurs[0] = "";
         }
 
         if (compare) {
-            memcpy(screenPrev.data + y*nx, g_screen->data + y*nx, nx*sizeof(ImTui::TCell));
+            //memcpy(screenPrev.data + y*nx, g_screen->data + y*nx, nx*sizeof(ImTui::TCell));
+            memcpy(screenPrev.str_data + y*nx, g_screen->str_data + y*nx, nx*sizeof(unsigned int));
         }
     }
 
     if (!compare) {
-        memcpy(screenPrev.data, g_screen->data, nx*ny*sizeof(ImTui::TCell));
+        //memcpy(screenPrev.data, g_screen->data, nx*ny*sizeof(ImTui::TCell));
+        memcpy(screenPrev.str_data, g_screen->str_data, nx*ny*sizeof(unsigned int));
     }
 
     g_vsync.wait(nActiveFrames --> 0);

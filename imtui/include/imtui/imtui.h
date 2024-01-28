@@ -11,6 +11,7 @@
 
 #include <cstring>
 #include <cstdint>
+#include <string>
 
 namespace ImTui {
 
@@ -30,9 +31,11 @@ struct TScreen {
     int nmax = 0;
 
     TCell * data = nullptr;
+    unsigned int *str_data = nullptr;
 
     ~TScreen() {
         if (data) delete [] data;
+        if (str_data) delete [] str_data;
     }
 
     inline int size() const { return nx*ny; }
@@ -40,6 +43,9 @@ struct TScreen {
     inline void clear() {
         if (data) {
             memset(data, 0, nx*ny*sizeof(TCell));
+        }
+        if (str_data) {
+            memset(str_data, 0, nx*ny*sizeof(unsigned int));
         }
     }
 
@@ -52,6 +58,7 @@ struct TScreen {
 
         nmax = nx*ny;
         data = new TCell[nmax];
+        str_data = new unsigned int [nmax];
     }
 };
 

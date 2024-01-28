@@ -14,6 +14,7 @@
 
 #define ABS(x) ((x >= 0) ? x : -x)
 
+
 void ScanLine(int x1, int y1, int x2, int y2, int ymax, std::vector<int> & xrange) {
     int sx, sy, dx1, dy1, dx2, dy2, x, y, m, n, k, cnt;
 
@@ -65,7 +66,7 @@ void ScanLine(int x1, int y1, int x2, int y2, int ymax, std::vector<int> & xrang
 
 static std::vector<int> g_xrange;
 
-void drawTriangle(ImVec2 p0, ImVec2 p1, ImVec2 p2, unsigned char col, ImTui::TScreen * screen) {
+void drawTriangle(ImVec2 p0, ImVec2 p1, ImVec2 p2, unsigned char col, unsigned int str_col, ImTui::TScreen * screen) {
     int ymin = std::min(std::min(std::min((float) screen->size(), p0.y), p1.y), p2.y);
     int ymax = std::max(std::max(std::max(0.0f, p0.y), p1.y), p2.y);
 
@@ -92,9 +93,14 @@ void drawTriangle(ImVec2 p0, ImVec2 p1, ImVec2 p2, unsigned char col, ImTui::TSc
             while (len--) {
                 if (x >= 0 && x < screen->nx && y + ymin >= 0 && y + ymin < screen->ny) {
                     auto & cell = screen->data[(y + ymin)*screen->nx + x];
-                    cell &= 0x00FF0000;
+                    auto & str_cell = screen->str_data[(y + ymin)*screen->nx + x];
+                    //cell &= 0x00FF0000;
+                    cell &= 0;
                     cell |= ' ';
                     cell |= ((ImTui::TCell)(col) << 24);
+                    //str_cell &= 0;
+                    //str_cell |= ' ';
+                    str_cell = str_col;
                 }
                 ++x;
             }
@@ -196,8 +202,7 @@ void ImTui_ImplText_RenderDrawData(ImDrawData * drawData, ImTui::TScreen * scree
                         auto uv2 = cmd_list->VtxBuffer[vidx2].uv;
 
                         auto col0 = cmd_list->VtxBuffer[vidx0].col;
-                        //auto col1 = cmd_list->VtxBuffer[vidx1].col;
-                        //auto col2 = cmd_list->VtxBuffer[vidx2].col;
+                        auto str_col = cmd_list->VtxBuffer[vidx0].full_char;
 
                         if (uv0.x != uv1.x || uv0.x != uv2.x || uv1.x != uv2.x ||
                             uv0.y != uv1.y || uv0.y != uv2.y || uv1.y != uv2.y) {
@@ -225,13 +230,16 @@ void ImTui_ImplText_RenderDrawData(ImDrawData * drawData, ImTui::TScreen * scree
                             if (xx < clip_rect.x || xx >= clip_rect.z || yy < clip_rect.y || yy >= clip_rect.w) {
                             } else {
                                 auto & cell = screen->data[yy*screen->nx + xx];
+                                auto &str_cell = screen->str_data[yy*screen->nx + xx];
+                                // Here, encode it differently !!!!!!!!!!!!!!!!!!!
                                 cell &= 0xFF000000;
                                 cell |= (col0 & 0xff000000) >> 24;
                                 cell |= ((ImTui::TCell)(rgbToAnsi256(col0, false)) << 16);
+                                str_cell = str_col;
                             }
                             i += 3;
                         } else {
-                            drawTriangle(pos0, pos1, pos2, rgbToAnsi256(col0, true), screen);
+                            drawTriangle(pos0, pos1, pos2, rgbToAnsi256(col0, true), str_col, screen);
                         }
                     }
                 }
@@ -243,7 +251,7 @@ void ImTui_ImplText_RenderDrawData(ImDrawData * drawData, ImTui::TScreen * scree
 
 bool ImTui_ImplText_Init() {
     ImGui::GetStyle().Alpha                   = 1.0f;
-    ImGui::GetStyle().WindowPadding           = ImVec2(0.5f, 0.0f);
+    ImGui::GetStyle().WindowPadding           = ImVec2(0.0f, 0.0f);
     ImGui::GetStyle().WindowRounding          = 0.0f;
     ImGui::GetStyle().WindowBorderSize        = 0.0f;
     ImGui::GetStyle().WindowMinSize           = ImVec2(4.0f, 2.0f);
@@ -253,11 +261,11 @@ bool ImTui_ImplText_Init() {
     ImGui::GetStyle().ChildBorderSize         = 0.0f;
     ImGui::GetStyle().PopupRounding           = 0.0f;
     ImGui::GetStyle().PopupBorderSize         = 0.0f;
-    ImGui::GetStyle().FramePadding            = ImVec2(1.0f, 0.0f);
+    ImGui::GetStyle().FramePadding            = ImVec2(0.0f, 0.0f);
     ImGui::GetStyle().FrameRounding           = 0.0f;
     ImGui::GetStyle().FrameBorderSize         = 0.0f;
-    ImGui::GetStyle().ItemSpacing             = ImVec2(1.0f, 0.0f);
-    ImGui::GetStyle().ItemInnerSpacing        = ImVec2(1.0f, 0.0f);
+    ImGui::GetStyle().ItemSpacing             = ImVec2(0.0f, 0.0f); // Menu item space
+    ImGui::GetStyle().ItemInnerSpacing        = ImVec2(0.0f, 0.0f);
     ImGui::GetStyle().TouchExtraPadding       = ImVec2(0.5f, 0.0f);
     ImGui::GetStyle().IndentSpacing           = 1.0f;
     ImGui::GetStyle().ColumnsMinSpacing       = 1.0f;
@@ -283,6 +291,7 @@ bool ImTui_ImplText_Init() {
     ImGui::GetStyle().Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.15, 0.15, 0.15, 1.0f);
     ImGui::GetStyle().Colors[ImGuiCol_TextSelectedBg]   = ImVec4(0.75, 0.75, 0.75, 0.5f);
     ImGui::GetStyle().Colors[ImGuiCol_NavHighlight]     = ImVec4(0.00, 0.00, 0.00, 0.0f);
+
 
     ImFontConfig fontConfig;
     fontConfig.GlyphMinAdvanceX = 1.0f;
