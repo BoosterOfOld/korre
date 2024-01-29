@@ -75,11 +75,6 @@ public:
     int height = 35;
     int spacer = 2;
 
-    void set_is(std::shared_ptr<internal_signal> isx) const
-    {
-        ws->is = std::move(isx);
-    }
-
     void on_frame()
     {
         ImGui::SetNextWindowPos(ImVec2((float)2, (float)2), ImGuiCond_Once);
@@ -170,31 +165,68 @@ public:
         ImGui::Text(("Maximal Sample Value: " + std::to_string(upper_limit)).c_str());*/
 
 
-            ImGui::EndChild();
-            ImGui::SameLine();
-            ImGui::SetCursorPos(ImVec2(57,0));
-            ImGui::BeginChild("Col3", ImVec2((float) 21, (float) 9), false, window_flags);
+        ImGui::EndChild();
+        ImGui::SameLine();
+        ImGui::SetCursorPos(ImVec2(57,0));
+        ImGui::BeginChild("Col3", ImVec2((float) 21, (float) 9), false, window_flags);
 
-            ImGui::Text("╒══╡DSP╞═══════════╕");
-            ImGui::Text("│                  │");
-            ImGui::Text("│                  │");
-            ImGui::Text("│                  │");
-            ImGui::Text("│                  │");
-            ImGui::Text("│                  │");
-            ImGui::Text("│                  │");
-            ImGui::Text("│                  │");
-            ImGui::Text("╘══════════════════╛");
-
-        if (ws->is != nullptr)
+        ImGui::Text("╒══╡DSP╞═══════════╕");
+        ImGui::Text("│                  │");
+        ImGui::Text("│                  │");
+        ImGui::Text("│                  │");
+        ImGui::Text("│                  │");
+        ImGui::Text("│                  │");
+        ImGui::Text("│                  │");
+        ImGui::Text("│                  │");
+        ImGui::Text("╘═══════╡"); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4) ImColor(60, 60, 60));
+        ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4) ImColor(255, 255, 104));
+        if(ImGui::RadioButton("Bypass", ws->selected_signal == -1))
         {
-            ImGui::SetCursorPos(ImVec2(0,1));
+            ws->selected_signal = -1;
+        }; ImGui::SameLine();
+        ImGui::PopStyleColor(2);
+        ImGui::Text("╞══╛");
 
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor(60, 60, 60));
-            ImGui::Text(" "); ImGui::SameLine();
-            ImGui::Checkbox(" ", &ws->use_is);
-            ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,104));
-            ImGui::SameLine(); ImGui::Text("%s", ws->is->name.c_str());
-            ImGui::PopStyleColor(2);
+        if (!ws->iss.empty())
+        {
+            ImGui::SetCursorPos(ImVec2(-1,1));
+
+            static int ss = 0;
+            ss = 0;
+            for(auto sig : ws->iss)
+            {
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4) ImColor(60, 60, 60));
+                ImGui::Text(" ");
+                ImGui::SameLine();
+                ImGui::PushID(ss+ 1000);
+                if(ImGui::RadioButton(std::to_string(ss).c_str(), ws->selected_signal == ss))
+                {
+                    ws->selected_signal = ss;
+                }
+                ImGui::PopID();
+                //ImGui::Checkbox(" ", &ws->use_is);
+                ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4) ImColor(255, 255, 104));
+                ImGui::SameLine();
+                ImGui::Text("%s ", sig->name.c_str());
+                ImGui::SameLine();
+                ImGui::PopStyleColor();
+                //ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor(255, 0, 0));
+                ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4) ImColor(255, 130, 130));
+                //if(ImGui::Button("✘"))
+                ImGui::PushID(ss);
+                if(ImGui::Button("✘"))
+                {
+                    ws->selected_signal = -1;
+                    ws->iss.erase(std::next(ws->iss.begin(), ss), std::next(ws->iss.begin(), ss+1));
+                    ImGui::PopStyleColor(2);
+                    ImGui::PopID();
+                    break;
+                }
+                ImGui::PopID();
+                ImGui::PopStyleColor(2);
+                ++ss;
+            }
 
             /*
             ImGui::Text("");

@@ -1205,7 +1205,7 @@ bool ImGui::RadioButton(const char* label, bool active)
     {
         const float pad = ImMax(1.0f, IM_FLOOR(square_sz / 6.0f));
         //window->DrawList->AddCircleFilled(center, radius - pad, GetColorU32(ImGuiCol_CheckMark), 16);
-        window->DrawList->AddText(center + ImVec2(-1, -1), GetColorU32(ImGuiCol_CheckMark), "x");
+        window->DrawList->AddText(center + ImVec2(-1, -1), GetColorU32(ImGuiCol_CheckMark), "●");
     }
 
     if (style.FrameBorderSize > 0.0f)

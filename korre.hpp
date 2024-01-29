@@ -97,7 +97,8 @@ private:
                 },
                 [this](const std::shared_ptr<internal_signal>& is)->void
                 {
-                    pl->ws->is = is;
+                    //pl->ws->is = is;
+                    pl->ws->add_signal(is);
                 },
                 [this]()->void { convolver_enabled = false; }
                 );
