@@ -159,6 +159,7 @@ include_directories(kora_audio_core/)
 include_directories(kora_audio_core/stft)
 include_directories(/opt/homebrew/include)
 
+#set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ".so" ".dylib")
 find_library(l_portaudio NAMES portaudio)
 find_library(l_ncurses NAMES ncursesw)
 find_library(l_armadillo NAMES armadillo)
@@ -168,5 +169,9 @@ target_link_libraries(kora PUBLIC ${l_ncurses})
 target_link_libraries(kora PUBLIC ${l_armadillo})
 target_link_libraries(kora PUBLIC imtui)
 target_link_libraries(kora PUBLIC stft)
+
+message(MSG_PORTAUDIO="${l_portaudio}")
+message(MSG_NCURSES="${l_ncurses}")
+message(MSG_ARMADILLO="${l_armadillo}")
 
 install(TARGETS kora RUNTIME DESTINATION bin)

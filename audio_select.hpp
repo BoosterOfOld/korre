@@ -55,7 +55,7 @@ public:
 
     void on_frame()
     {
-        ImGui::SetNextWindowPos(ImVec2((float)86, (float)3), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2((float)83, (float)2), ImGuiCond_Once);
 
         windowth(w, h, "Audio_Select", [this]()->void {render_content();});
     }

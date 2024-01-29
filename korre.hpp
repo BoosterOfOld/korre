@@ -16,7 +16,7 @@ class korre
 private:
     bool exit = false;
     ImTui::TScreen* screen;
-    std::string title_text = u8"╣Korre"; //  ╣Korre
+    std::string title_text = u8"Korre "; //  ╣Korre
 
     std::unique_ptr<player> pl;
     std::unique_ptr<audio_select> as;
@@ -147,15 +147,15 @@ private:
 
             ImGui::SameLine();
 
-            if (ImGui::BeginMenu("File"))
+            if (ImGui::BeginMenu("File "))
             {
-                if(ImGui::MenuItem("Exit", nullptr, nullptr))
+                if(ImGui::MenuItem("Exit  ", nullptr, nullptr))
                 {
                     exit = true;
                 }
                 ImGui::EndMenu();
             }
-            if (ImGui::BeginMenu("Modules"))
+            if (ImGui::BeginMenu("Modules "))
             {
                 if(ImGui::MenuItem("Convolver", nullptr, nullptr))
                 {
@@ -163,7 +163,7 @@ private:
                 }
                 ImGui::EndMenu();
             }
-            if (ImGui::BeginMenu("Output Device"))
+            if (ImGui::BeginMenu("Output Device "))
             {
                 if (ImGui::MenuItem("Refresh Device List", nullptr, nullptr))
                 {

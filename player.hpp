@@ -72,7 +72,7 @@ public:
     }
 
     int width = 81;
-    int height = 37;
+    int height = 35;
     int spacer = 2;
 
     void set_is(std::shared_ptr<internal_signal> isx) const
@@ -82,7 +82,7 @@ public:
 
     void on_frame()
     {
-        ImGui::SetNextWindowPos(ImVec2((float)3, (float)3), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2((float)2, (float)2), ImGuiCond_Once);
 
         windowth(width, height, "Audio_Player", [this]()->void {render_content();});
     }
@@ -91,7 +91,7 @@ public:
     {
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar;
 
-        ImGui::Text("");
+        //ImGui::Text("");
 
         ImGui::Text("  ");ImGui::SameLine();
         ImGui::BeginChild("Col1", ImVec2(28.f, (float)8), false, window_flags);
@@ -109,9 +109,21 @@ public:
 
         ImGui::EndChild();
         ImGui::SameLine();
-        ImGui::BeginChild("Col2", ImVec2(((float)width/2.f)-10, (float)8), false, window_flags);
+        ImGui::SetCursorPos(ImVec2(28,0));
+        ImGui::BeginChild("Col2", ImVec2(((float)width/2.f)-10, (float)9), false, window_flags);
 
-        ImGui::Text("");
+        ImGui::Text("╒══╡Track_Details╞══════════╕");
+        ImGui::Text("│                           │");
+        ImGui::Text("│                           │");
+        ImGui::Text("│                           │");
+        ImGui::Text("│                           │");
+        ImGui::Text("│                           │");
+        ImGui::Text("│                           │");
+        ImGui::Text("│                           │");
+        ImGui::Text("╘═══════════════════════════╛");
+
+        ImGui::SetCursorPos(ImVec2(0,1));
+
         //ImGui::Text(("File Format: " + std::string((const char *)wav.wav_file.format, 4)).c_str());
 
         ImGui::Text("Audio Format: "); ImGui::SameLine();
@@ -119,34 +131,34 @@ public:
         ImGui::Text((std::string((const char *)wav.wav_file.format, 4) + "/" + std::string((wav.wav_file.audioFormat == 1 ? "PCM" : "Non-PCM"))).c_str());
         ImGui::PopStyleColor();
 
-        ImGui::Text("Sampling Rate: "); ImGui::SameLine();
+        ImGui::Text(" Sampling Rate: "); ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         ImGui::Text("%s", std::to_string(wav.wav_file.sampleRate).c_str());
         ImGui::PopStyleColor();
 
-        ImGui::Text("Bit Depth: "); ImGui::SameLine();
+        ImGui::Text(" Bit Depth: "); ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         ImGui::Text("%s", std::to_string(wav.wav_file.bitsPerSample).c_str());
         ImGui::PopStyleColor();
 
-        ImGui::Text("Channels: "); ImGui::SameLine();
+        ImGui::Text(" Channels: "); ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         ImGui::Text("%s", std::to_string(wav.wav_file.numChannels).c_str());
         ImGui::PopStyleColor();
 
-        ImGui::Text("Data Size: "); ImGui::SameLine();
+        ImGui::Text(" Data Size: "); ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         ImGui::Text("%s", (std::to_string((float)wav.wav_file.subchunk2Size / 1048576.f) + " MB").c_str());
         ImGui::PopStyleColor();
 
         int num_samples = ((float)wav.wav_file.subchunk2Size / (float)wav.wav_file.numChannels) / ((float)wav.wav_file.bitsPerSample / 8.f);
 
-        ImGui::Text("Number of Samples: "); ImGui::SameLine();
+        ImGui::Text(" Number of Samples: "); ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         ImGui::Text("%s", std::to_string( num_samples ).c_str());
         ImGui::PopStyleColor();
 
-        ImGui::Text("Duration: "); ImGui::SameLine();
+        ImGui::Text(" Duration: "); ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
         ImGui::Text("%s", (std::to_string( num_samples / (float)wav.wav_file.sampleRate ) + " s").c_str());
         ImGui::PopStyleColor();
@@ -157,26 +169,53 @@ public:
         ImGui::Text(("Highest Sample Value: " + std::to_string(max_value)).c_str());
         ImGui::Text(("Maximal Sample Value: " + std::to_string(upper_limit)).c_str());*/
 
-        if (ws->is != nullptr)
-        {
+
             ImGui::EndChild();
             ImGui::SameLine();
-            ImGui::BeginChild("Col3", ImVec2((float) 20, (float) 8), false, window_flags);
+            ImGui::SetCursorPos(ImVec2(57,0));
+            ImGui::BeginChild("Col3", ImVec2((float) 21, (float) 9), false, window_flags);
 
+            ImGui::Text("╒══╡DSP╞═══════════╕");
+            ImGui::Text("│                  │");
+            ImGui::Text("│                  │");
+            ImGui::Text("│                  │");
+            ImGui::Text("│                  │");
+            ImGui::Text("│                  │");
+            ImGui::Text("│                  │");
+            ImGui::Text("│                  │");
+            ImGui::Text("╘══════════════════╛");
+
+        if (ws->is != nullptr)
+        {
+            ImGui::SetCursorPos(ImVec2(0,1));
+
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor(60, 60, 60));
+            ImGui::Text(" "); ImGui::SameLine();
+            ImGui::Checkbox(" ", &ws->use_is);
+            ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,104));
+            ImGui::SameLine(); ImGui::Text("%s", ws->is->name.c_str());
+            ImGui::PopStyleColor(2);
+
+            /*
             ImGui::Text("");
-            ImGui::Text("Internal Signal:");
+            ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,104));
+            ImGui::Text("Internal Signal");
+            ImGui::PopStyleColor();
 
-            ImGui::Text("Name:"); ImGui::SameLine();
-            ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.8f));
+            ImGui::Text("Name: "); ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255, 255, 255));
             ImGui::Text("%s", ws->is->name.c_str());
             ImGui::PopStyleColor();
 
-            ImGui::Checkbox("Use this signal", &ws->use_is);
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor(60, 60, 60));
+            ImGui::Checkbox(" ", &ws->use_is);
+            ImGui::PopStyleColor();
+             */
         }
 
         ImGui::EndChild();
 
-        ImGui::Text("");
+        //mGui::Text("");
 
         double i = pa_sink->is_open() ? 55.f / 360.f : 2.f / 7.f;
         //ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(i, 0.6f, 0.6f));
@@ -299,7 +338,7 @@ public:
 
         //ImGui::Text("");
 
-        ImGui::SetCursorPos(ImVec2(-1,14+1));
+        ImGui::SetCursorPos(ImVec2(-1,14));
 
         ImGui::Text("  ");ImGui::SameLine();
         i = 3;
