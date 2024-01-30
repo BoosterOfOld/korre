@@ -55,6 +55,7 @@ public:
 
     void on_frame()
     {
+        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         ImGui::SetNextWindowPos(ImVec2((float)83, (float)2), ImGuiCond_Once);
 
         windowth(w, h, "Audio_Select", [this]()->void {render_content();});
