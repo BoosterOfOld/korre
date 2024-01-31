@@ -11,8 +11,12 @@
 
 #include "korre.hpp"
 
+#include "flac_decode.hpp"
+
 int main(int argc, char *argv[])
 {
+    //flac_test();
+
     setlocale(LC_ALL, "");
 
     korre korr;

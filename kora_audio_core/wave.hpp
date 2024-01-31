@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "internal_signal.hpp"
+#include "flac_decode.hpp"
 
 //#include "dohm_signal_orig.hpp"
 
@@ -136,6 +137,51 @@ public:
     std::shared_ptr<std::vector<double>> r;
     WavFile wav_file;
     std::string notes;
+
+    void load_flac(const char *path, bool normalize)
+    {
+        flac_decode decoder(nullptr);
+
+        if(!decoder)
+        {
+            throw std::runtime_error("FLAC decoder couldn't be allocated");
+        }
+
+        (void)decoder.set_md5_checking(true);
+
+        FLAC__StreamDecoderInitStatus init_status = decoder.init(path);
+        if(init_status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
+        {
+            throw std::runtime_error("FLAC decoder couldn't be initialized");
+            //fprintf(stderr, "ERROR: initializing decoder: %s\n", FLAC__StreamDecoderInitStatusString[init_status]);
+        }
+
+        if (!decoder.process_until_end_of_stream())
+        {
+            throw std::runtime_error("FLAC stream processing failed");
+        }
+
+        wav_file.sampleRate = decoder.sample_rate;
+        wav_file.numChannels = decoder.channels;
+        wav_file.format[0] = 'F';
+        wav_file.format[1] = 'L';
+        wav_file.format[2] = 'A';
+        wav_file.format[3] = 'C';
+        wav_file.bitsPerSample = decoder.bit_depth;
+        wav_file.audioFormat = 1;
+
+        l = decoder.l;
+        r = decoder.r;
+
+        if (normalize)
+        {
+            g_normalize_to_bit_depth(l, wav_file.bitsPerSample);
+            g_normalize_to_bit_depth(r, wav_file.bitsPerSample);
+            notes.append("N");
+        }
+
+        wav_file.subchunk2Size = l->size() * decoder.channels * (decoder.bit_depth / 8);
+    }
 
     void load_wav(const char *path, bool normalize)
     {

@@ -150,7 +150,8 @@ add_executable(kora
         dsp_convolver.hpp
         dsp_convolver.hpp
         internal_signal.hpp
-        windowth.hpp)
+        windowth.hpp
+        flac_decode.hpp)
 
 include_directories(/usr/local/include)
 include_directories(./imtui)
@@ -163,15 +164,21 @@ include_directories(/opt/homebrew/include)
 find_library(l_portaudio NAMES portaudio)
 find_library(l_ncurses NAMES ncursesw)
 find_library(l_armadillo NAMES armadillo)
+find_library(l_flac NAMES flac)
+find_library(l_flacpp NAMES flac++)
 
 target_link_libraries(kora PUBLIC ${l_portaudio})
 target_link_libraries(kora PUBLIC ${l_ncurses})
 target_link_libraries(kora PUBLIC ${l_armadillo})
 target_link_libraries(kora PUBLIC imtui)
 target_link_libraries(kora PUBLIC stft)
+target_link_libraries(kora PUBLIC ${l_flac})
+target_link_libraries(kora PUBLIC ${l_flacpp})
 
 message(MSG_PORTAUDIO="${l_portaudio}")
 message(MSG_NCURSES="${l_ncurses}")
 message(MSG_ARMADILLO="${l_armadillo}")
+message(MSG_FLAC="${l_flac}")
+message(MSG_FLAC="${l_flacpp}")
 
 install(TARGETS kora RUNTIME DESTINATION bin)

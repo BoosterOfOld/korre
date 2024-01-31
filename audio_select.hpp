@@ -28,7 +28,7 @@ private:
         itemies.clear();
         for (const auto & entry : std::filesystem::directory_iterator(dir_path))
         {
-            if (entry.path().extension() == ".wav")
+            if (entry.path().extension() == ".wav" || entry.path().extension() == ".flac")
             {
                 itemies.emplace_back(entry.path());
             }

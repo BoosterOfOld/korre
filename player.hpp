@@ -14,6 +14,7 @@
 #include "meter.hpp"
 #include "internal_signal.hpp"
 #include "windowth.hpp"
+#include "flac_decode.hpp"
 
 class player
 {
@@ -38,27 +39,39 @@ public:
 
     void load(const char *path, bool normalize)
     {
-        if (path == nullptr)
+        auto dot = strrchr(path, '.');
+        if (dot && !strcmp(dot, ".flac"))
         {
-            //wav.load_wav("/Users/northkillpd/temp/lg96.wav");
-            //wav.load_wav("/Users/northkillpd/temp/rihanna.wav");
-            //wav.load_wav("/Users/northkillpd/temp/sweep.wav");
+            wav.load_flac(path, normalize);
+
+            PA_SAMPLE_RATE = wav.wav_file.sampleRate;
+            PA_BIT_DEPTH = wav.wav_file.bitsPerSample;
+
+            uint32_t num_samples = wav.l->size(); //((float)wav.wav_file.subchunk2Size / (float)wav.wav_file.numChannels) / ((float)wav.wav_file.bitsPerSample / 8.f);
+            PA_SAMPLE_LENGTH = num_samples;
+            PA_NUM_CHANNELS = wav.wav_file.numChannels;
+
+            ws = std::make_shared<wave_source>(&wav, wav.wav_file.sampleRate);
+            m = std::make_shared<meter>(wav.wav_file.sampleRate);
+            ws->connect_to(m, 1, 1);
+            m->connect_to(pa_sink, 1, 1);
         }
+        else
+        {
+            wav.load_wav(path, normalize);
 
-        wav.load_wav(path, normalize);
-        //run_analytics();
+            PA_SAMPLE_RATE = wav.wav_file.sampleRate;
+            PA_BIT_DEPTH = wav.wav_file.bitsPerSample;
 
-        PA_SAMPLE_RATE = wav.wav_file.sampleRate;
-        PA_BIT_DEPTH = wav.wav_file.bitsPerSample;
+            uint32_t num_samples = ((float)wav.wav_file.subchunk2Size / (float)wav.wav_file.numChannels) / ((float)wav.wav_file.bitsPerSample / 8.f);
+            PA_SAMPLE_LENGTH = num_samples;
+            PA_NUM_CHANNELS = wav.wav_file.numChannels;
 
-        uint32_t num_samples = ((float)wav.wav_file.subchunk2Size / (float)wav.wav_file.numChannels) / ((float)wav.wav_file.bitsPerSample / 8.f);
-        PA_SAMPLE_LENGTH = num_samples;
-        PA_NUM_CHANNELS = wav.wav_file.numChannels;
-
-        ws = std::make_shared<wave_source>(&wav, wav.wav_file.sampleRate);
-        m = std::make_shared<meter>(wav.wav_file.sampleRate);
-        ws->connect_to(m, 1, 1);
-        m->connect_to(pa_sink, 1, 1);
+            ws = std::make_shared<wave_source>(&wav, wav.wav_file.sampleRate);
+            m = std::make_shared<meter>(wav.wav_file.sampleRate);
+            ws->connect_to(m, 1, 1);
+            m->connect_to(pa_sink, 1, 1);
+        }
     }
 
     void play()
