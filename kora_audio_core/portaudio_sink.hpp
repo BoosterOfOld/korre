@@ -10,10 +10,12 @@
 #include <stdio.h>
 #include <iostream>
 #include <tuple>
+#include <deque>
 
 #include <portaudio.h>
 
 #include <thread>
+#include <chrono>
 #include <memory>
 
 #include "sink.hpp"
@@ -44,6 +46,8 @@ static int PA_SELECTED_DEVICE = 1;
 static bool PA_USE_DEFAULT_DEVICE = true;
 
 static int PA_T;
+static std::function<void(void)> PA_SIG_TRACK_END = nullptr;
+struct std::deque<std::function<void(void)>> comms_q;
 
 static int paCallback( const void *inputBuffer, void *outputBuffer,
                            unsigned long framesPerBuffer,
@@ -54,7 +58,6 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
     /* Cast data passed through stream to our structure. */
     pa_data *datax = (pa_data*)userData;
 
-    // To 24 bits !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     int16_t *out = (int16_t *)outputBuffer;
     unsigned char *out_byte = (unsigned char *)outputBuffer;
     unsigned int i;
@@ -64,7 +67,6 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
 
     for(i=0; i<framesPerBuffer; ++i)
     {
-        //pair = datax->sampler->sample(datax->t);
         pair = datax->sampler->sample(PA_T);
 
         double left_sample = std::get<0>(pair);
@@ -101,7 +103,16 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
         //++datax->t;
         //datax->t %= PA_SAMPLE_LENGTH;
         ++PA_T;
-        PA_T %= PA_SAMPLE_LENGTH;
+
+        if ((PA_SIG_TRACK_END != nullptr) && (PA_T != 0) && (PA_T % PA_SAMPLE_LENGTH == 0))
+        {
+            PA_T = 0;
+            comms_q.push_front(PA_SIG_TRACK_END);
+        }
+        else
+        {
+            PA_T %= PA_SAMPLE_LENGTH;
+        }
     }
     return 0;
 }

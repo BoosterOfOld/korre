@@ -151,7 +151,8 @@ add_executable(kora
         dsp_convolver.hpp
         internal_signal.hpp
         windowth.hpp
-        flac_decode.hpp)
+        flac_decode.hpp
+        queue.hpp)
 
 include_directories(/usr/local/include)
 include_directories(./imtui)

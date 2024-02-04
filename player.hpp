@@ -95,6 +95,12 @@ public:
         windowth(width, height, "Audio_Player", [this]()->void {render_content();});
     }
 
+    void do_play()
+    {
+        pa_sink->open();
+        running = true;
+    }
+
     void render_content()
     {
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar;

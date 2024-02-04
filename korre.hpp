@@ -10,6 +10,7 @@
 #include "player.hpp"
 #include "audio_select.hpp"
 #include "dsp_convolver.hpp"
+#include "queue.hpp"
 
 class korre
 {
@@ -21,9 +22,10 @@ private:
     std::unique_ptr<player> pl;
     std::unique_ptr<audio_select> as;
     std::unique_ptr<dsp_convolver> dc;
+    std::unique_ptr<queue> qu;
 
     bool audio_selected = false;
-    std::string selected_audio;
+    std::filesystem::path selected_audio;
 
     bool ir_selected = false;
     std::string selected_ir;
@@ -76,7 +78,7 @@ private:
         pl->stop();
     }
 
-    void load_audio(std::string path)
+    void load_audio(std::filesystem::path path)
     {
         audio_selected = false;
         this->selected_audio = path;
@@ -120,6 +122,12 @@ private:
             ImGui::Render();
             ImTui_ImplText_RenderDrawData(ImGui::GetDrawData(), screen);
             ImTui_ImplNcurses_DrawScreen();
+
+            while (!comms_q.empty())
+            {
+                comms_q.front()();
+                comms_q.pop_front();
+            }
         }
     }
 
@@ -128,6 +136,7 @@ private:
         render_main_menu();
 
         as->on_frame();
+        qu->on_frame();
         if (audio_selected)
         {
             pl->on_frame();
@@ -208,16 +217,31 @@ private:
 public:
     korre()
     {
-        as = std::make_unique<audio_select>(
-                    [this](auto && PH1)
-                    {
-                        load_audio(std::forward<decltype(PH1)>(PH1));
-                    },
-                    [this](auto && PH1)
-                    {
-                        load_ir(std::forward<decltype(PH1)>(PH1));
-                    }
+
+        qu = std::make_unique<queue>(
+                [this](auto && PH1)
+                {
+                    load_audio(std::forward<decltype(PH1)>(PH1));
+                },
+                [this]()
+                {
+                    unload_audio();
+                },
+                [this]()
+                {
+                    pl->do_play();
+                }
                 );
+        as = std::make_unique<audio_select>(
+                [this](auto && PH1)
+                {
+                    qu->enqueue_track_or_playlist(PH1);
+                },
+                [this](auto && PH1)
+                {
+                    load_ir(std::forward<decltype(PH1)>(PH1));
+                }
+        );
         pl = std::make_unique<player>();
     }
 

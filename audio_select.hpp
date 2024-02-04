@@ -18,9 +18,9 @@ private:
     std::vector<std::filesystem::path> itemies;
     int item_current_idx = 0;
     std::string dir_path = "/Users/northkillpd/temp";
-    std::string selected_path;
+    std::filesystem::path selected_path;
 
-    std::function<void(std::string)> callback;
+    std::function<void(std::filesystem::path)> callback;
     std::function<void(std::string)> ir_callback;
 
     void update_file_list()
@@ -28,7 +28,7 @@ private:
         itemies.clear();
         for (const auto & entry : std::filesystem::directory_iterator(dir_path))
         {
-            if (entry.path().extension() == ".wav" || entry.path().extension() == ".flac")
+            if (entry.path().extension() == ".wav" || entry.path().extension() == ".flac" || entry.path().extension() == ".txt")
             {
                 itemies.emplace_back(entry.path());
             }
@@ -36,7 +36,10 @@ private:
     }
 
 public:
-    explicit audio_select(std::function<void(std::string)> callback, std::function<void(std::string)> ir_callback)
+    explicit audio_select(
+            std::function<void(std::filesystem::path)> callback,
+            std::function<void(std::string)> ir_callback
+    )
     {
         this->callback = std::move(callback);
         this->ir_callback = std::move(ir_callback);
@@ -49,14 +52,15 @@ public:
     }
 
     int w = 41;
-    int h = 29;
+    //int h = 29;
+    int h = 22;
 
     bool is_loading = false;
 
     void on_frame()
     {
         ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-        ImGui::SetNextWindowPos(ImVec2((float)83, (float)2), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2((float)83, (float)15), ImGuiCond_Once);
 
         windowth(w, h, "Audio_Select", [this]()->void {render_content();});
     }
@@ -71,7 +75,8 @@ public:
 
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor(30, 30, 30));
         ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,104));
-        static char wksp[182] = "/Users/northkillpd/temp/"; ImGui::InputText("", wksp, 128);
+        static char wksp[182] = "/Users/northkillpd/temp/";
+        ImGui::InputText("", wksp, 128);
         ImGui::PopStyleColor(2);
         ImGui::SameLine();
         if (ImGui::Button(" RELOAD "))
@@ -101,7 +106,7 @@ public:
 
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor(30, 30, 30));
         ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,104));
-        if (ImGui::BeginListBox("Audio Select", ImVec2(w - 2.f, h - 15.f)))
+        if (ImGui::BeginListBox("Audio Select", ImVec2(w - 2.f, h - 14.f)))
         {
             for (int n = 0; n < itemies.size(); ++n)
             {
