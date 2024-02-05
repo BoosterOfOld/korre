@@ -7,7 +7,7 @@
 
 #include "wave_source.h"
 #include "meter.h"
-#include "windowth.hpp"
+#include "windowth.h"
 
 player::player()
 {

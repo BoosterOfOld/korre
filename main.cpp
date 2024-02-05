@@ -4,7 +4,7 @@
 #include <clocale>
 
 #include "imtui/imtui.h"
-#include "korre.hpp"
+#include "korre.h"
 
 int main(int argc, char *argv[])
 {

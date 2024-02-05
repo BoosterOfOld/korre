@@ -108,18 +108,10 @@ project(kora)
 add_executable(kora
         main.cpp
         imtui/src/imtui-impl-ncurses.cpp
-        korre.hpp
-        meter.hpp
         pffft/pffft.h
         pffft/pffft.c
         pffft/pfft.h
-        audio_select.hpp
         include/tukey.h
-        dsp_convolver.hpp
-        dsp_convolver.hpp
-        internal_signal.hpp
-        windowth.hpp
-        queue.hpp
         include/player.h
         src/player.cpp
         src/tukey.cpp
@@ -138,7 +130,17 @@ add_executable(kora
         include/flac_decode.h
         src/flac_decode.cpp
         include/meter.h
-        src/meter.cpp)
+        src/meter.cpp
+        src/audio_select.cpp
+        include/audio_select.h
+        include/dsp_convolver.h
+        src/dsp_convolver.cpp
+        include/queue.h
+        src/queue.cpp
+        include/korre.h
+        src/korre.cpp
+        include/windowth.h
+        src/windowth.cpp)
 
 include_directories(./)
 include_directories(/usr/local/include)

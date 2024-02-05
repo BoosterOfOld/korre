@@ -1,13 +1,9 @@
-#pragma once
-
-#include <string>
-#include <cstring>
-#include <iostream>
+#include "windowth.h"
 
 #include "imtui/imtui.h"
 #include "imtui/imtui-impl-ncurses.h"
 
-static void windowth(int width, int height, const char *name, std::function<void(void)> render_content)
+void windowth(int width, int height, const char *name, std::function<void(void)> render_content)
 {
     ImGui::SetNextWindowSize(ImVec2((float)(width), (float)height), ImGuiCond_Once);
 
