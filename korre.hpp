@@ -7,7 +7,7 @@
 #include "imtui/imtui.h"
 #include "imtui/imtui-impl-ncurses.h"
 
-#include "player.hpp"
+#include "player.h"
 #include "audio_select.hpp"
 #include "dsp_convolver.hpp"
 #include "queue.hpp"

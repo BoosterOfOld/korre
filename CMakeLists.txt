@@ -99,36 +99,6 @@ endif()
 
 add_subdirectory(imtui/src)
 
-# Project Name
-project(stft)
-
-# This cmake file try to make a lib of ImGui glfw backend
-add_definitions(-fPIC)
-
-set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
-
-# Get header and source file name
-file(GLOB_RECURSE SOURCESTFT_CPP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} kora_audio_core/stft/*.cpp)
-file(GLOB_RECURSE SOURCESTFT_HEADER RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} kora_audio_core/stft/*.h)
-
-# create target
-add_library(stft STATIC ${SOURCESTFT_CPP})
-
-
-install(TARGETS stft
-        EXPORT stftConfig
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
-
-export(TARGETS stft
-        FILE "${CMAKE_CURRENT_BINARY_DIR}/stftConfig.cmake")
-
-install(EXPORT stftConfig
-        DESTINATION lib/cmake/stft
-        EXPORT_LINK_INTERFACE_LIBRARIES
-)
 
 project(kora)
 
@@ -139,26 +109,41 @@ add_executable(kora
         main.cpp
         imtui/src/imtui-impl-ncurses.cpp
         korre.hpp
-        player.hpp
-        wave_source.hpp
         meter.hpp
         pffft/pffft.h
         pffft/pffft.c
         pffft/pfft.h
         audio_select.hpp
-        tukey.h
+        include/tukey.h
         dsp_convolver.hpp
         dsp_convolver.hpp
         internal_signal.hpp
         windowth.hpp
-        flac_decode.hpp
-        queue.hpp)
+        queue.hpp
+        include/player.h
+        src/player.cpp
+        src/tukey.cpp
+        include/portaudio_sink.h
+        src/portaudio_sink.cpp
+        include/sink.h
+        src/sink.cpp
+        include/sampler.h
+        src/sampler.cpp
+        include/internal_signal.h
+        src/internal_signal.cpp
+        include/wave.h
+        src/wave.cpp
+        include/wave_source.h
+        src/wave_source.cpp
+        include/flac_decode.h
+        src/flac_decode.cpp
+        include/meter.h
+        src/meter.cpp)
 
+include_directories(./)
 include_directories(/usr/local/include)
 include_directories(./imtui)
 include_directories(./include)
-include_directories(kora_audio_core/)
-include_directories(kora_audio_core/stft)
 include_directories(/opt/homebrew/include)
 
 #set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ".so" ".dylib")
@@ -172,7 +157,6 @@ target_link_libraries(kora PUBLIC ${l_portaudio})
 target_link_libraries(kora PUBLIC ${l_ncurses})
 target_link_libraries(kora PUBLIC ${l_armadillo})
 target_link_libraries(kora PUBLIC imtui)
-target_link_libraries(kora PUBLIC stft)
 target_link_libraries(kora PUBLIC ${l_flac})
 target_link_libraries(kora PUBLIC ${l_flacpp})
 

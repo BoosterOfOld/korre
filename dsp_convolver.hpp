@@ -5,8 +5,8 @@
 #include <vector>
 #include <thread>
 
-#include "meter.hpp"
-#include "wave_source.hpp"
+#include "meter.h"
+#include "wave_source.h"
 #include "windowth.hpp"
 
 #include "imtui/imtui.h"

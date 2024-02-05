@@ -3,7 +3,7 @@
 #include <cmath>
 #include <complex>
 
-#include "sampler.hpp"
+#include "sampler.h"
 #include "tukey.h"
 
 #include "pffft/pfft.h"

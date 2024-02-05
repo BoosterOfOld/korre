@@ -1,17 +1,10 @@
 //
 // Created by North Kill PD on 27.12.2023.
 //
-#include <cmath>
-#include <iostream>
 #include <clocale>
-#include <cwchar>
 
 #include "imtui/imtui.h"
-#include "imtui/imtui-impl-ncurses.h"
-
 #include "korre.hpp"
-
-#include "flac_decode.hpp"
 
 int main(int argc, char *argv[])
 {

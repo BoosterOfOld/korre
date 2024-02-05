@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cfloat>
 #include <cstdint>
 #include <memory>
 #include <utility>
