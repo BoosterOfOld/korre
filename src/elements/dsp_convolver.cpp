@@ -1,11 +1,11 @@
-#include "dsp_convolver.h"
+#include "elements/dsp_convolver.h"
 
 #include <string>
 #include <utility>
 #include <vector>
 #include <thread>
 
-#include "meter.h"
+#include "elements/meter.h"
 #include "wave_source.h"
 #include "windowth.h"
 

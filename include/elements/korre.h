@@ -8,8 +8,8 @@
 #include "imtui/imtui-impl-ncurses.h"
 
 #include "player.h"
-#include "audio_select.h"
-#include "dsp_convolver.h"
+#include "elements/audio_select.h"
+#include "elements/dsp_convolver.h"
 #include "queue.h"
 
 class korre

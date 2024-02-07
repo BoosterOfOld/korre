@@ -1,4 +1,4 @@
-#include "korre.h"
+#include "elements/korre.h"
 
 #include <string>
 #include <cstring>
@@ -7,10 +7,10 @@
 #include "imtui/imtui.h"
 #include "imtui/imtui-impl-ncurses.h"
 
-#include "player.h"
-#include "audio_select.h"
-#include "dsp_convolver.h"
-#include "queue.h"
+#include "elements/player.h"
+#include "elements/audio_select.h"
+#include "elements/dsp_convolver.h"
+#include "elements/queue.h"
 
 void korre::refresh_devices()
 {

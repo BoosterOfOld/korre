@@ -1,4 +1,4 @@
-#include "player.h"
+#include "elements/player.h"
 
 #include <string>
 #include <utility>
@@ -6,7 +6,7 @@
 #include "imtui/imtui.h"
 
 #include "wave_source.h"
-#include "meter.h"
+#include "elements/meter.h"
 #include "windowth.h"
 
 player::player()
@@ -25,6 +25,22 @@ void player::load(const char *path, bool normalize)
     if (dot && !strcmp(dot, ".flac"))
     {
         wav.load_flac(path, normalize);
+
+        PA_SAMPLE_RATE = wav.wav_file.sampleRate;
+        PA_BIT_DEPTH = wav.wav_file.bitsPerSample;
+
+        uint32_t num_samples = wav.l->size(); //((float)wav.wav_file.subchunk2Size / (float)wav.wav_file.numChannels) / ((float)wav.wav_file.bitsPerSample / 8.f);
+        PA_SAMPLE_LENGTH = num_samples;
+        PA_NUM_CHANNELS = wav.wav_file.numChannels;
+
+        ws = std::make_shared<wave_source>(&wav, wav.wav_file.sampleRate);
+        m = std::make_shared<meter>(wav.wav_file.sampleRate);
+        ws->connect_to(m, 1, 1);
+        m->connect_to(pa_sink, 1, 1);
+    }
+    else if (dot && !strcmp(dot, ".mp3"))
+    {
+        wav.load_mp3(path, normalize);
 
         PA_SAMPLE_RATE = wav.wav_file.sampleRate;
         PA_BIT_DEPTH = wav.wav_file.bitsPerSample;
@@ -120,7 +136,16 @@ void player::render_content()
 
     ImGui::Text("Audio Format: "); ImGui::SameLine();
     ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
-    ImGui::Text((std::string((const char *)wav.wav_file.format, 4) + "/" + std::string((wav.wav_file.audioFormat == 1 ? "PCM" : "Non-PCM"))).c_str());
+    if (!wav.wav_file.extra.empty())
+    {
+        ImGui::Text("MP3 ");
+        ImGui::SameLine(); ImGui::Text(wav.wav_file.extra.c_str());
+        ImGui::SameLine(); ImGui::Text( "kbps");
+    }
+    else
+    {
+        ImGui::Text((std::string((const char *)wav.wav_file.format, 4) + "/" + std::string((wav.wav_file.audioFormat == 1 ? "PCM" : "Non-PCM"))).c_str());
+    }
     ImGui::PopStyleColor();
 
     ImGui::Text(" Sampling Rate: "); ImGui::SameLine();

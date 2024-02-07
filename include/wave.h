@@ -1,7 +1,8 @@
 #pragma once
 
 #include "internal_signal.h"
-#include "flac_decode.h"
+#include "decoders/flac_decode.h"
+#include "decoders/mp3_decode.h"
 
 //#include "dohm_signal_orig.hpp"
 
@@ -20,6 +21,7 @@ typedef struct wav_file {
     unsigned char subchunk2Id[4];
     uint32_t subchunk2Size;
     unsigned char * data;
+    std::string extra;
 } WavFile;
 
 class wave
@@ -40,6 +42,7 @@ public:
 
     void load_flac(const char *path, bool normalize);
     void load_wav(const char *path, bool normalize);
+    void load_mp3(const char *path, bool normalize);
 
     virtual ~wave();
 };

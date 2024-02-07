@@ -1,4 +1,4 @@
-#include "audio_select.h"
+#include "elements/audio_select.h"
 
 bool LOADER_NORMALIZE = false;
 
@@ -7,7 +7,11 @@ void audio_select::update_file_list()
     itemies.clear();
     for (const auto & entry : std::filesystem::directory_iterator(dir_path))
     {
-        if (entry.path().extension() == ".wav" || entry.path().extension() == ".flac" || entry.path().extension() == ".txt")
+        if (entry.path().extension() == ".wav"
+            || entry.path().extension() == ".flac"
+               || entry.path().extension() == ".mp3"
+            || entry.path().extension() == ".txt"
+        )
         {
             itemies.emplace_back(entry.path());
         }

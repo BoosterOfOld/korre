@@ -109,6 +109,27 @@ std::shared_ptr<std::vector<double>> r;
 WavFile wav_file;
 std::string notes;
 
+void wave::load_mp3(const char *path, bool normalize)
+{
+    mp3_decode decoder;
+    decoder.decode_file(path);
+
+    wav_file.sampleRate = decoder.sample_rate;
+    wav_file.numChannels = decoder.channels;
+    wav_file.format[0] = 'M';
+    wav_file.format[1] = 'P';
+    wav_file.format[2] = '3';
+    wav_file.format[3] = ' ';
+    wav_file.bitsPerSample = decoder.bit_depth;
+    wav_file.audioFormat = 1;
+    wav_file.extra = std::to_string(decoder.bitrate);
+
+    l = decoder.l;
+    r = decoder.r;
+
+    wav_file.subchunk2Size = l->size() * decoder.channels * (decoder.bit_depth / 8);
+}
+
 void wave::load_flac(const char *path, bool normalize)
 {
     flac_decode decoder(nullptr);

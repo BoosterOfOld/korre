@@ -112,8 +112,8 @@ add_executable(kora
         pffft/pffft.c
         pffft/pfft.h
         include/tukey.h
-        include/player.h
-        src/player.cpp
+        include/elements/player.h
+        src/elements/player.cpp
         src/tukey.cpp
         include/portaudio_sink.h
         src/portaudio_sink.cpp
@@ -127,20 +127,24 @@ add_executable(kora
         src/wave.cpp
         include/wave_source.h
         src/wave_source.cpp
-        include/flac_decode.h
+        include/decoders/flac_decode.h
         src/flac_decode.cpp
-        include/meter.h
-        src/meter.cpp
-        src/audio_select.cpp
-        include/audio_select.h
-        include/dsp_convolver.h
-        src/dsp_convolver.cpp
-        include/queue.h
-        src/queue.cpp
-        include/korre.h
-        src/korre.cpp
+        include/elements/meter.h
+        src/elements/meter.cpp
+        src/elements/audio_select.cpp
+        include/elements/audio_select.h
+        include/elements/dsp_convolver.h
+        src/elements/dsp_convolver.cpp
+        include/elements/queue.h
+        src/elements/queue.cpp
+        include/elements/korre.h
+        src/elements/korre.cpp
         include/windowth.h
-        src/windowth.cpp)
+        src/windowth.cpp
+        src/decoders/minimp3.h
+        src/decoders/mp3_decode.cpp
+        src/decoders/minimp3_ex.h
+        include/decoders/mp3_decode.h)
 
 include_directories(./)
 include_directories(/usr/local/include)

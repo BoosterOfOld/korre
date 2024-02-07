@@ -2,7 +2,7 @@
 
 #include "portaudio_sink.h"
 #include "wave_source.h"
-#include "meter.h"
+#include "elements/meter.h"
 
 class player
 {

@@ -1,4 +1,4 @@
-#include "flac_decode.h"
+#include "decoders/flac_decode.h"
 
 ::FLAC__StreamDecoderWriteStatus flac_decode::write_callback(const ::FLAC__Frame *frame, const FLAC__int32 * const buffer[])
 {
