@@ -1,17 +1,5 @@
 #include "elements/korre.h"
 
-#include <string>
-#include <cstring>
-#include <iostream>
-
-#include "imtui/imtui.h"
-#include "imtui/imtui-impl-ncurses.h"
-
-#include "elements/player.h"
-#include "elements/audio_select.h"
-#include "elements/dsp_convolver.h"
-#include "elements/queue.h"
-
 void korre::refresh_devices()
 {
     device_names.clear();
@@ -74,7 +62,6 @@ void korre::load_ir(std::string path)
             },
             [this](const std::shared_ptr<internal_signal>& is)->void
             {
-                //pl->ws->is = is;
                 pl->ws->add_signal(is);
             },
             [this]()->void { convolver_enabled = false; }

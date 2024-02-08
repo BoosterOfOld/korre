@@ -1,19 +1,13 @@
 #include "elements/dsp_convolver.h"
 
-#include <string>
 #include <utility>
 #include <vector>
 #include <thread>
 
-#include "elements/meter.h"
-#include "wave_source.h"
 #include "windowth.h"
 
 #include "imtui/imtui.h"
-#include "imtui/imtui-impl-ncurses.h"
-
 #include "armadillo"
-
 
 void *dsp_convolver::worker_run(dsp_convolver *dc)
 {
@@ -46,7 +40,6 @@ std::shared_ptr<std::vector<double>> dsp_convolver::convo_sum(
 {
     auto signal_size = signal->size();
     auto kernel_size = kernel->size();
-    auto cnt_operations = signal_size * kernel_size;
 
     int jmn = 0;
     int jmx = 0;
@@ -173,7 +166,6 @@ void dsp_convolver::render_content()
     ImGui::Text(R"( ______________________________)");
     ImGui::Text(R"(|,--------------------------.  |)");
 
-    // Child 1
     ImGui::Text(R"(||)");
     ImGui::Text(R"(||)");
     ImGui::Text(R"(||)");
@@ -183,12 +175,10 @@ void dsp_convolver::render_content()
     ImGui::Text(R"(||)");
 
     ImGui::SetCursorPos(ImVec2(1,6));
-/*
-    // Child 2
 
-*/
     ImGui::SetCursorPos(ImVec2(27,6));
-    // Child 3
+
+
     ImGui::Text(R"( |=|)");
     ImGui::SetCursorPos(ImVec2(27,6));
     ImGui::Text(R"( | |)");
@@ -209,7 +199,6 @@ void dsp_convolver::render_content()
 
     ImGui::SetCursorPos(ImVec2(3,6));
     ImGui::BeginChild("dd", ImVec2(25,6), false, window_flags);
-    //ImGui::PushStyleColor(ImGuiCol_PlotLines, (ImVec4)ImColor::HSV(120.f/360.f, 1.0f, 0.7f));
     ImGui::PushStyleColor(ImGuiCol_PlotLines, (ImVec4)ImColor(71, 167, 169));
     ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0, 0, 0.f/360.f));
     ImGui::PlotLines("", m->wind_avg, m->bin_range, 0, "IR SPECTRUM", 0.f, m->ceiling, ImVec2(25, 7));
@@ -236,18 +225,12 @@ void dsp_convolver::render_content()
         ImGui::Text("");
     }
 
-    //ImGui::Text("");
-
     static bool bypass;
     ImGui::Text("                      "); ImGui::SameLine();
-    //ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 0.6f, 0.6f));
-    //ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.7f));
-    //ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.8f, 0.8f));
     ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
     if(ImGui::Button(" CONVOLVE "))
     {
         run(obtain_input());
     }
     ImGui::PopStyleColor();
-    //ImGui::PopStyleColor(3);
 }

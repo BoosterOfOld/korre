@@ -1,4 +1,4 @@
-#include "internal_signal.h"
+#include "sources/internal_signal.h"
 
 void g_normalize_to_bit_depth(std::shared_ptr<std::vector<double>> signal, uint16_t bit_depth)
 {

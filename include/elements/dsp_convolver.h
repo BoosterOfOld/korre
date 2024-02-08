@@ -1,12 +1,9 @@
 #pragma once
 
-#include <string>
-#include <utility>
-#include <vector>
 #include <thread>
 
 #include "meter.h"
-#include "wave_source.h"
+#include "sources/wave_source.h"
 
 class dsp_convolver
 {
@@ -32,6 +29,12 @@ private:
     bool focused = false;
     size_t t = 0;
 
+    void yield();
+    void render_content();
+    void run(std::shared_ptr<wave_source> wsinput);
+    static void* thread_proxy(dsp_convolver* ci);
+    void thread_proc();
+
 public:
     std::shared_ptr<wave_source> ws = nullptr;
     std::shared_ptr<wave_source> wsi = nullptr;
@@ -45,19 +48,10 @@ public:
             std::function<void(std::shared_ptr<internal_signal>)> yield_signal,
             std::function<void(void)> close
     );
-
     virtual ~dsp_convolver();
 
-    static void* thread_proxy(dsp_convolver* ci);
-
-    void thread_proc();
     void load(const char *path);
-    void run(std::shared_ptr<wave_source> wsinput);
-    void yield();
-
-
     void on_frame();
-    void render_content();
 };
 
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "wave_source.h"
+#include "sources/wave_source.h"
 
 wave_source::wave_source(wave *w, uint32_t sample_rate) : sampler(sample_rate, 0)
 {

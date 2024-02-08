@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "sampler.h"
-#include "wave.h"
+#include "sources/wave.h"
 #include "internal_signal.h"
 
 class wave_source : public sampler

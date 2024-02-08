@@ -1,4 +1,4 @@
-#include "portaudio_sink.h"
+#include "sinks/portaudio_sink.h"
 
 #include <iostream>
 
@@ -71,8 +71,6 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
             *out_byte++ = rb1;
         }
 
-        //++datax->t;
-        //datax->t %= PA_SAMPLE_LENGTH;
         ++PA_T;
 
         if ((PA_SIG_TRACK_END != nullptr) && (PA_T != 0) && (PA_T % PA_SAMPLE_LENGTH == 0))
@@ -99,19 +97,17 @@ void *portaudio_sink::worker_run(std::shared_ptr<sampler> arg)
     datax.sampler = arg;
     datax.accumulator = 0;
 
-    /* Initialize library before making any other calls. */
     err = Pa_Initialize();
     if( err != paNoError ) terminate();
 
     if (PA_USE_DEFAULT_DEVICE)
     {
-        // Open an audio I/O stream.
         err = Pa_OpenDefaultStream(&stream,
                                    0,
                                    2,
                                    PA_BIT_DEPTH == 8 ? paInt8 : PA_BIT_DEPTH == 16 ? paInt16 : PA_BIT_DEPTH == 24 ? paInt24 : PA_BIT_DEPTH == 32 ? paInt32 : paInt16,
                                    PA_SAMPLE_RATE,
-                                   256,        // frames per buffer
+                                   256,
                                    paCallback,
                                    &datax );
         if( err != paNoError )
@@ -122,7 +118,7 @@ void *portaudio_sink::worker_run(std::shared_ptr<sampler> arg)
     else
     {
         PaStreamParameters outputParameters;
-        bzero(&outputParameters, sizeof(outputParameters)); //not necessary if you are filling in all the fields
+        bzero(&outputParameters, sizeof(outputParameters));
         outputParameters.channelCount = 2;
         outputParameters.device = PA_SELECTED_DEVICE;
         outputParameters.hostApiSpecificStreamInfo = NULL;
@@ -130,7 +126,7 @@ void *portaudio_sink::worker_run(std::shared_ptr<sampler> arg)
                 PA_BIT_DEPTH == 8 ? paInt8 : PA_BIT_DEPTH == 16 ? paInt16 : PA_BIT_DEPTH == 24 ? paInt24 :
                                                                             PA_BIT_DEPTH == 32 ? paInt32 : paInt16;
         outputParameters.suggestedLatency = Pa_GetDeviceInfo(PA_SELECTED_DEVICE)->defaultLowOutputLatency;
-        outputParameters.hostApiSpecificStreamInfo = NULL; //See you specific host's API docs for info on using this field
+        outputParameters.hostApiSpecificStreamInfo = NULL;
 
         err = Pa_OpenStream(
                 &stream,
@@ -138,8 +134,8 @@ void *portaudio_sink::worker_run(std::shared_ptr<sampler> arg)
                 &outputParameters,
                 PA_SAMPLE_RATE,
                 256,
-                paNoFlag, //flags that can be used to define dither, clip settings and more
-                paCallback, //your callback function
+                paNoFlag,
+                paCallback,
                 &datax);
         if (err != paNoError) terminate();
     }

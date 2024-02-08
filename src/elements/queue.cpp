@@ -1,16 +1,8 @@
 #include "elements/queue.h"
 
-#include <deque>
-#include <string>
-#include <filesystem>
-#include <algorithm>
-#include <random>
-#include <fstream>
-
 #include "windowth.h"
 #include "imtui/imtui.h"
-#include "imtui/imtui-impl-ncurses.h"
-#include "portaudio_sink.h"
+#include "include/sinks/portaudio_sink.h"
 
 queue::queue(
         std::function<void(std::filesystem::path)> loader,

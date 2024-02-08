@@ -1,15 +1,18 @@
 #pragma once
 
-#include <cmath>
-#include <complex>
-
 #include "sampler.h"
-#include "tukey.h"
-
 #include "pffft/pfft.h"
 
+/**
+ * A pass-through element that emits continuous linear and logarithmic frequency spectrum
+ * of the signal on input 1. Stereo signal is down-mixed before FFT is applied to it.
+ * For the purpose of console display, use "compacted" and "compact_columns".
+ */
 class meter : public sampler
 {
+private:
+    double logfn(double base, double x);
+    void process_log();
 public:
     double l;
     double r;
@@ -41,10 +44,10 @@ public:
     double base = 10; // log base for logs in this file
 
     explicit meter(uint32_t sample_rate);
+    virtual ~meter();
+
     void update_range(double freq);
     virtual std::tuple<double, double> sample(size_t t) override;
-    double logfn(double base, double x);
-    void process_log();
     virtual size_t sample_size() override;
     virtual void pulse() override;
 };

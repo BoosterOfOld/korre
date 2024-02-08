@@ -1,7 +1,7 @@
 #pragma once
 
-#include "portaudio_sink.h"
-#include "wave_source.h"
+#include "sinks/portaudio_sink.h"
+#include "sources/wave_source.h"
 #include "elements/meter.h"
 
 class player

@@ -1,5 +1,8 @@
 #include "elements/audio_select.h"
 
+#include "imtui/imtui.h"
+#include "windowth.h"
+
 bool LOADER_NORMALIZE = false;
 
 void audio_select::update_file_list()
@@ -43,7 +46,6 @@ void audio_select::on_frame()
 
 void audio_select::render_content()
 {
-
     ImGui::Text(" ");
     ImGui::Text("Workspace:");
 
@@ -90,7 +92,6 @@ void audio_select::render_content()
             if (ImGui::Selectable(itemies[n].filename().c_str(), is_selected))
                 item_current_idx = n;
 
-            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
             if (is_selected)
                 ImGui::SetItemDefaultFocus();
         }
@@ -106,9 +107,6 @@ void audio_select::render_content()
     ImGui::Text("");
 
     ImGui::Text(""); ImGui::SameLine();
-    //ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.5f / 7.f, 0.6f, 0.6f));
-    //ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.5f / 7.f, 0.7f, 0.7f));
-    //ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.5f / 7.f, 0.8f, 0.8f));
 
     ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(255,255,255));
     ImGui::Text(" ");ImGui::SameLine();
@@ -116,7 +114,6 @@ void audio_select::render_content()
     {
         ir_callback(selected_path);
     }
-    //ImGui::PopStyleColor(3);
 
     ImGui::SameLine(); ImGui::Text("   "); ImGui::SameLine();
     ImGui::SameLine();

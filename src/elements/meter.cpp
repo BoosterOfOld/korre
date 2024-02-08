@@ -1,10 +1,12 @@
 #include "elements/meter.h"
 
- meter::meter(uint32_t sample_rate) : sampler(sample_rate, 0)
+#include "tukey.h"
+
+meter::meter(uint32_t sample_rate) : sampler(sample_rate, 0)
 {
     name = "Meter";
 
-    order = 12; // 9, 12 -- PUT THIS TO SETTINGS !!!!!!!
+    order = 12;
     n = pow(2, order);
     nn = n * 2;
 
@@ -194,4 +196,20 @@ size_t meter::sample_size()
 void meter::pulse()
 {
     this->propagate();
+}
+
+meter::~meter()
+{
+    delete[] p;
+    delete[] compacted;
+    delete[] wind;
+    delete[] wind_avg;
+    delete[] wind_avg_log;
+    delete[] wind_avg_log_bins;
+    delete[] hann;
+
+    for (auto i = 0; i < roll; ++i)
+    {
+        delete wind_f[i];
+    }
 }

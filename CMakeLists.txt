@@ -115,20 +115,20 @@ add_executable(kora
         include/elements/player.h
         src/elements/player.cpp
         src/tukey.cpp
-        include/portaudio_sink.h
-        src/portaudio_sink.cpp
-        include/sink.h
-        src/sink.cpp
+        include/sinks/portaudio_sink.h
+        src/sinks/portaudio_sink.cpp
+        include/sinks/sink.h
+        src/sinks/sink.cpp
         include/sampler.h
         src/sampler.cpp
-        include/internal_signal.h
-        src/internal_signal.cpp
-        include/wave.h
-        src/wave.cpp
-        include/wave_source.h
-        src/wave_source.cpp
+        include/sources/internal_signal.h
+        src/sources/internal_signal.cpp
+        include/sources/wave.h
+        src/sources/wave.cpp
+        include/sources/wave_source.h
+        src/sources/wave_source.cpp
         include/decoders/flac_decode.h
-        src/flac_decode.cpp
+        src/decoders/flac_decode.cpp
         include/elements/meter.h
         src/elements/meter.cpp
         src/elements/audio_select.cpp

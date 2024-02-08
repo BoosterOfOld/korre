@@ -1,14 +1,8 @@
 #pragma once
 
 #include <string>
-#include <utility>
 #include <vector>
-#include <iostream>
 #include <filesystem>
-
-#include "imtui/imtui.h"
-#include "imtui/imtui-impl-ncurses.h"
-#include "windowth.h"
 
 extern bool LOADER_NORMALIZE;
 

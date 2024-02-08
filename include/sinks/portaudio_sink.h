@@ -3,7 +3,7 @@
 #include <deque>
 #include <portaudio.h>
 
-#include "sink.h"
+#include "sinks/sink.h"
 
 #define M_PI_M2 ( M_PI + M_PI )
 
