@@ -39,7 +39,7 @@ https://github.com/BoosterOfOld/korre/assets/52963062/1f04e0a6-ac47-4655-a71f-26
 
 ### Build ncursesw
 
-The project uses my custom fork of [ggerganov/imtui](https://github.com/ggerganov/imtui) with an added support for UTF-8 (in order to display the box-drawing characters) and as such it needs ncursesw (ncurses with wide char support). Neither the ncurses lib bundled with Mac OS nor the Homebrew cask support that, so ncursesw must be build from source:
+The project uses my custom fork of [ggerganov/imtui](https://github.com/ggerganov/imtui) with an added support for UTF-8 (in order to display the box-drawing characters) and as such it needs ncursesw (ncurses with wide char support). Neither the ncurses lib bundled with Mac OS nor the Homebrew cask support that, so ncursesw must be built from source:
 
 Download [ncurses source code](https://ftp.gnu.org/gnu/ncurses/ncurses-6.4.tar.gz) and build using:
 
